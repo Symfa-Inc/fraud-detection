@@ -13,6 +13,7 @@ dependencies = []
 dev = [
     "openpyxl>=3.1.5",
     "pandas>=3.0.0",
+    "pre-commit>=4.5.1",
 ]
 
 [tool.isort]
