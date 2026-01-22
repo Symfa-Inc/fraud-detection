@@ -14,6 +14,41 @@ The goal is to build a predictive model that can identify potentially fraudulent
 - Streamline the claims investigation process
 - Allocate investigation resources more efficiently
 
+## 📁 Project Structure
+
+```
+fraud-detection/
+├── backend/                        # 🐍 FastAPI Backend
+│   └── src/fraud_detection/
+│       ├── __init__.py
+│       └── main.py                 # API endpoints
+│
+├── frontend/                       # ⚛️ Next.js Frontend
+│   ├── src/app/
+│   │   ├── layout.js               # Root layout
+│   │   ├── page.js                 # Home page
+│   │   └── globals.css             # Global styles
+│   ├── package.json
+│   └── next.config.mjs
+│
+├── scripts/                        # 🔧 ML & Training Scripts
+│   └── (training scripts, preprocessing, etc.)
+│
+├── notebooks/                      # 📓 Jupyter Notebooks
+│   └── (EDA, experiments, etc.)
+│
+├── data/                           # 📊 Datasets
+│   └── data.csv                    # Raw competition data
+│
+├── models/                         # 🧠 Trained ML Models
+│   └── (model artifacts: .joblib, .pkl)
+│
+├── pyproject.toml                  # Python dependencies (uv)
+├── .pre-commit-config.yaml         # Code quality hooks
+├── README.md
+└── LICENSE
+```
+
 ## 📊 Dataset
 
 The dataset contains insurance claim records with the following features:
@@ -22,7 +57,7 @@ The dataset contains insurance claim records with the following features:
 | Feature | Description |
 |---------|-------------|
 | `age_of_driver` | Age of the driver |
-| `gender` | Gender of the driver |
+| `gender` | Gender of the driver (M/F) |
 | `marital_status` | Marital status indicator |
 | `annual_income` | Annual income of the policyholder |
 | `high_education_ind` | Higher education indicator |
@@ -53,38 +88,78 @@ The dataset contains insurance claim records with the following features:
 | `vehicle_weight` | Weight of the vehicle |
 | `safty_rating` | Safety rating of the vehicle |
 
-### Other Features
+### Target Variable
 | Feature | Description |
 |---------|-------------|
-| `address_change_ind` | Address change indicator |
-| `fraud` | **Target variable** (1 = Fraudulent, 0 = Legitimate) |
+| `fraud` | **Target** (1 = Fraudulent, 0 = Legitimate) |
 
 ## 🛠️ Tech Stack
 
+### Backend
 - **Python 3.13+**
-- **pandas** - Data manipulation and analysis
-- **openpyxl** - Excel file handling
+- **FastAPI** - Modern, high-performance web framework
+- **Pydantic** - Data validation
+- **uvicorn** - ASGI server
+
+### Frontend
+- **Next.js** - React framework with SSR
+- **JavaScript** - ES6+
+- **React 18+**
+
+### ML & Data Science
+- **pandas** - Data manipulation
+- **scikit-learn** - Machine learning (planned)
+
+### Development
+- **uv** - Fast Python package manager
+- **pre-commit** - Git hooks for code quality
+- **ruff** - Linter and formatter
+- **mypy** - Static type checker
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-Make sure you have Python 3.13+ installed. We recommend using [uv](https://github.com/astral-sh/uv) for dependency management.
+- Python 3.13+
+- Node.js 18+
+- [uv](https://github.com/astral-sh/uv) (recommended for Python)
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Symfa-Inc/fraud-detection.git
    cd fraud-detection
    ```
 
-2. Install dependencies using uv:
+2. **Install Python dependencies:**
    ```bash
    uv sync
    ```
 
-3. Activate the virtual environment:
+3. **Install frontend dependencies:**
    ```bash
-   source .venv/bin/activate
+   cd frontend
+   npm install
    ```
+
+### Running the Application
+
+**Backend (FastAPI):**
+```bash
+uv run uvicorn backend.src.fraud_detection.main:app --reload
+```
+API will be available at: http://localhost:8000
+API docs at: http://localhost:8000/docs
+
+**Frontend (Next.js):**
+```bash
+cd frontend
+npm run dev
+```
+Frontend will be available at: http://localhost:3000
+
+## 🔗 References
+
+- [2023 Travelers NESS Statathon on Kaggle](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview)
+- [Travelers Insurance](https://www.travelers.com/)
