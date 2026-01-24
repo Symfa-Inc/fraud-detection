@@ -18,36 +18,30 @@ The goal is to build a predictive model that can identify potentially fraudulent
 
 ```
 fraud-detection/
-├── backend/                        # 🐍 FastAPI Backend
-│   └── src/fraud_detection/
-│       ├── __init__.py
-│       └── main.py                 # API endpoints
+├── backend/                        # 🐍 Python Backend (UV workspace member)
+│   ├── src/fraud_detection/        # FastAPI application
+│   │   ├── __init__.py
+│   │   └── main.py                 # API endpoints
+│   ├── models/                     # Trained ML model artifacts
+│   ├── notebooks/                  # Jupyter notebooks (EDA, experiments)
+│   ├── scripts/                    # Training & preprocessing scripts
+│   ├── data/                       # Datasets
+│   │   └── source.csv
+│   └── pyproject.toml              # Backend dependencies
 │
 ├── frontend/                       # ⚛️ Next.js Frontend
 │   ├── src/app/
-│   │   ├── layout.js               # Root layout
-│   │   ├── page.js                 # Home page
-│   │   └── globals.css             # Global styles
-│   ├── package.json
-│   └── next.config.mjs
+│   │   ├── layout.js
+│   │   ├── page.js
+│   │   └── globals.css
+│   └── package.json
 │
-├── scripts/                        # 🔧 ML & Training Scripts
-│   └── (training scripts, preprocessing, etc.)
-│
-├── notebooks/                      # 📓 Jupyter Notebooks
-│   └── (EDA, experiments, etc.)
-│
-├── data/                           # 📊 Datasets
-│   └── data.csv                    # Raw competition data
-│
-├── models/                         # 🧠 Trained ML Models
-│   └── (model artifacts: .joblib, .pkl)
-│
-├── pyproject.toml                  # Python dependencies (uv)
+├── pyproject.toml                  # UV workspace definition
+├── uv.lock                         # Lockfile
 ├── .pre-commit-config.yaml         # Code quality hooks
-├── README.md
-└── LICENSE
+└── README.md
 ```
+
 
 ## 📊 Dataset
 
@@ -147,7 +141,7 @@ The dataset contains insurance claim records with the following features:
 
 **Backend (FastAPI):**
 ```bash
-uv run uvicorn backend.src.fraud_detection.main:app --reload
+uv run uvicorn fraud_detection.main:app --reload
 ```
 API will be available at: http://localhost:8000
 API docs at: http://localhost:8000/docs
