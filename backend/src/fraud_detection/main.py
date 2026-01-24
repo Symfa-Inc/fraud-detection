@@ -22,14 +22,20 @@ app.add_middleware(
 
 # --- Schemas ---
 class HealthResponse(BaseModel):
+    """Health check response schema."""
+
     status: str
 
 
 class PredictionRequest(BaseModel):
+    """Prediction request schema."""
+
     claim_number: int
 
 
 class PredictionResponse(BaseModel):
+    """Prediction response schema."""
+
     claim_number: int
     fraud_probability: float
     is_fraud: bool
@@ -37,19 +43,19 @@ class PredictionResponse(BaseModel):
 
 # --- Endpoints ---
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
     """Root endpoint."""
     return {"message": "Fraud Detection API", "docs": "/docs"}
 
 
 @app.get("/health", response_model=HealthResponse)
-async def health():
+async def health() -> HealthResponse:
     """Health check."""
     return HealthResponse(status="healthy")
 
 
 @app.post("/predict", response_model=PredictionResponse)
-async def predict(request: PredictionRequest):
+async def predict(request: PredictionRequest) -> PredictionResponse:
     """Predict fraud for a claim."""
     # TODO: Implement ML model prediction
     return PredictionResponse(
