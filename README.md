@@ -96,9 +96,10 @@ The dataset contains insurance claim records with the following features:
 - **uvicorn** - ASGI server
 
 ### Frontend
-- **Next.js** - React framework with SSR
-- **JavaScript** - ES6+
-- **React 18+**
+- **Next.js 16** - React framework with SSR
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **React 19**
 
 ### ML & Data Science
 - **pandas** - Data manipulation
@@ -116,6 +117,7 @@ The dataset contains insurance claim records with the following features:
 
 - Python 3.13+
 - Node.js 18+
+- [pnpm](https://pnpm.io/) (fast and efficient Node.js package manager)
 - [uv](https://github.com/astral-sh/uv) (recommended for Python)
 
 ### Installation
@@ -134,7 +136,7 @@ The dataset contains insurance claim records with the following features:
 3. **Install frontend dependencies:**
    ```bash
    cd frontend
-   npm install
+   pnpm install
    ```
 
 ### Running the Application
@@ -149,7 +151,7 @@ API docs at: http://localhost:8000/docs
 **Frontend (Next.js):**
 ```bash
 cd frontend
-npm run dev
+pnpm dev
 ```
 Frontend will be available at: http://localhost:3000
 
