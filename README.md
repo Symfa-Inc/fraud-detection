@@ -1,10 +1,25 @@
+<div align="center">
+
+<img src=".assets/logo.png" width="100" alt="Fraud Detection Logo">
+
 # 🕵️ Insurance Claim Fraud Detection
 
-A machine learning prototype for detecting fraudulent insurance claims, based on the [2023 Travelers NESS Statathon Kaggle Competition](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview).
+[![Python 3.13](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6.svg)](https://www.typescriptlang.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.128-009688.svg)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.6-F7931E.svg?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+
+**Machine learning prototype for detecting fraudulent insurance claims.**
+
+🔗 **Live Demo**: [fraud-detection-demo.symfa.com](https://fraud-detection-demo-placeholder.vercel.app/)
+
+</div>
 
 ## 📋 Overview
 
-This project aims to develop a robust fraud detection system for insurance claims using machine learning techniques. Fraudulent claims cost the insurance industry billions of dollars annually, making accurate detection crucial for maintaining affordable premiums and operational efficiency.
+A machine learning prototype for detecting fraudulent insurance claims, based on the [2023 Travelers NESS Statathon Kaggle Competition](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview). This project aims to develop a robust fraud detection system for insurance claims using machine learning techniques. Fraudulent claims cost the insurance industry billions of dollars annually, making accurate detection crucial for maintaining affordable premiums and operational efficiency.
 
 ## 🎯 Problem Statement
 
