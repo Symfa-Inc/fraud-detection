@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { logBackendRoot } from "./utils/api";
 
 import FeatureImportance from "./ui/FeatureImportance";
 import FeaturePanel, { Feature } from "./ui/FeaturePanel";
@@ -111,6 +112,10 @@ const getNumberValue = (value: string | number) => {
 };
 
 export default function Home() {
+  useEffect(() => {
+    logBackendRoot();
+  }, []);
+
   const [featureValues, setFeatureValues] = useState(() => {
     const initialValues: Record<string, string | number> = {};
     features.forEach((feature) => {
@@ -159,6 +164,7 @@ export default function Home() {
     riskScore >= threshold
       ? "The model predicts a high probability of fraud for this claim. This assessment is driven by elevated risk indicators in the selected features."
       : "The model predicts a low probability of fraud for this claim. Most signals fall within expected ranges, lowering the overall risk.";
+
 
   return (
     <div
