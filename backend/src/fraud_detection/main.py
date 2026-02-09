@@ -21,10 +21,6 @@ app.add_middleware(
 
 
 # --- Schemas ---
-class HealthResponse(BaseModel):
-    """Health check response schema."""
-
-    status: str
 
 
 class PredictionRequest(BaseModel):
@@ -46,12 +42,6 @@ class PredictionResponse(BaseModel):
 async def root() -> dict[str, str]:
     """Root endpoint."""
     return {"message": "Fraud Detection API", "docs": "/docs"}
-
-
-@app.get("/health", response_model=HealthResponse)
-async def health() -> HealthResponse:
-    """Health check."""
-    return HealthResponse(status="healthy")
 
 
 @app.post("/predict", response_model=PredictionResponse)
