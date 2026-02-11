@@ -353,15 +353,13 @@ wheels = [
 all = [
     { name = "hyperopt" },
     { name = "pyarrow" },
-    { name = "ray", version = "2.51.2", source = { registry = "https://pypi.org/simple" }, extra = ["default", "tune"], marker = "sys_platform != 'win32'" },
-    { name = "ray", version = "2.52.1", source = { registry = "https://pypi.org/simple" }, extra = ["default", "tune"], marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
+    { name = "ray", extra = ["default", "tune"], marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
     { name = "stevedore" },
 ]
 raytune = [
     { name = "hyperopt" },
     { name = "pyarrow" },
-    { name = "ray", version = "2.51.2", source = { registry = "https://pypi.org/simple" }, extra = ["default", "tune"], marker = "sys_platform != 'win32'" },
-    { name = "ray", version = "2.52.1", source = { registry = "https://pypi.org/simple" }, extra = ["default", "tune"], marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
+    { name = "ray", extra = ["default", "tune"], marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
     { name = "stevedore" },
 ]
 
@@ -743,6 +741,10 @@ version = "8.2.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "colorama", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
@@ -757,11 +759,7 @@ name = "click"
 version = "8.3.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.14' and sys_platform == 'win32'",
-    "python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "colorama", marker = "python_full_version < '3.14' and sys_platform == 'win32'" },
@@ -2330,8 +2328,8 @@ name = "model-index"
 version = "0.1.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' and sys_platform == 'win32'" },
     { name = "markdown" },
     { name = "ordered-set" },
     { name = "pyyaml" },
@@ -2604,8 +2602,8 @@ name = "nltk"
 version = "3.9.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' and sys_platform == 'win32'" },
     { name = "joblib" },
     { name = "regex" },
     { name = "tqdm" },
@@ -2863,8 +2861,8 @@ name = "opendatalab"
 version = "0.0.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' and sys_platform == 'win32'" },
     { name = "colorama" },
     { name = "openxlab" },
     { name = "pycryptodome" },
@@ -2883,8 +2881,8 @@ name = "openmim"
 version = "0.3.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' and sys_platform == 'win32'" },
     { name = "colorama" },
     { name = "model-index" },
     { name = "opendatalab" },
@@ -3919,97 +3917,48 @@ wheels = [
 
 [[package]]
 name = "ray"
-version = "2.51.2"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-    "python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
-]
-dependencies = [
-    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'win32'" },
-    { name = "filelock", marker = "sys_platform != 'win32'" },
-    { name = "jsonschema", marker = "sys_platform != 'win32'" },
-    { name = "msgpack", marker = "sys_platform != 'win32'" },
-    { name = "packaging", marker = "sys_platform != 'win32'" },
-    { name = "protobuf", marker = "sys_platform != 'win32'" },
-    { name = "pyyaml", marker = "sys_platform != 'win32'" },
-    { name = "requests", marker = "sys_platform != 'win32'" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/89/255ac2a70928a1d439c98fca9f3437cabbbebd3ac767523df608cce39197/ray-2.51.2-cp313-cp313-macosx_12_0_arm64.whl", hash = "sha256:c9ed290667868c809eb467ad8830d887fdce10dac2c674b3d43d3b3b5f9c7b07", size = 67975149, upload-time = "2025-11-29T00:29:28.995Z" },
-    { url = "https://files.pythonhosted.org/packages/d3/05/1e3bb04e263a2bc1eacd762b37a0013d18f76341de0a7199d84a5a00b372/ray-2.51.2-cp313-cp313-manylinux2014_aarch64.whl", hash = "sha256:554bd393e97bed9dfa5f73f47e4fbf42aa35d81b1228081aa93ccb7cdd5d4b34", size = 70414911, upload-time = "2025-11-29T00:29:34.286Z" },
-    { url = "https://files.pythonhosted.org/packages/c4/85/f6994a74cf5e6fa6ebc959c27ff6f1f5352b78e71b947b4b302c6bb0a203/ray-2.51.2-cp313-cp313-manylinux2014_x86_64.whl", hash = "sha256:e3bf004ed23971ec5d324ed9748aed23f6645d56696a44cdbe35d331f66c4619", size = 71275062, upload-time = "2025-11-29T00:29:39.379Z" },
-]
-
-[package.optional-dependencies]
-default = [
-    { name = "aiohttp", marker = "sys_platform != 'win32'" },
-    { name = "aiohttp-cors", marker = "sys_platform != 'win32'" },
-    { name = "colorful", marker = "sys_platform != 'win32'" },
-    { name = "grpcio", marker = "sys_platform != 'win32'" },
-    { name = "opencensus", marker = "sys_platform != 'win32'" },
-    { name = "opentelemetry-exporter-prometheus", marker = "sys_platform != 'win32'" },
-    { name = "opentelemetry-proto", marker = "sys_platform != 'win32'" },
-    { name = "opentelemetry-sdk", marker = "sys_platform != 'win32'" },
-    { name = "prometheus-client", marker = "sys_platform != 'win32'" },
-    { name = "py-spy", marker = "sys_platform != 'win32'" },
-    { name = "pydantic", marker = "sys_platform != 'win32'" },
-    { name = "requests", marker = "sys_platform != 'win32'" },
-    { name = "smart-open", marker = "sys_platform != 'win32'" },
-    { name = "virtualenv", marker = "sys_platform != 'win32'" },
-]
-tune = [
-    { name = "fsspec", marker = "sys_platform != 'win32'" },
-    { name = "pandas", marker = "sys_platform != 'win32'" },
-    { name = "pyarrow", marker = "sys_platform != 'win32'" },
-    { name = "requests", marker = "sys_platform != 'win32'" },
-    { name = "tensorboardx", marker = "sys_platform != 'win32'" },
-]
-
-[[package]]
-name = "ray"
 version = "2.52.1"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.14' and sys_platform == 'win32'",
-]
 dependencies = [
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "filelock", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "jsonschema", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "msgpack", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "packaging", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "protobuf", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "pyyaml", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "requests", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "filelock", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "jsonschema", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "msgpack", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "packaging", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "protobuf", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "pyyaml", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "requests", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b3/8a/d802270d2871cb3a18cb470f4645eb5cef0deaeda9a4c0d1ac280f2a7424/ray-2.52.1-cp313-cp313-macosx_12_0_arm64.whl", hash = "sha256:b5bc29548abb0a0a7ae9e6ff3b0ccca2824edaf011a4336e15a32793d574fbfd", size = 69321286, upload-time = "2025-11-28T02:23:06.263Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/35/5f354584dfbc38e0851f9284f905798060d7fca98c9e9da42838296515b7/ray-2.52.1-cp313-cp313-manylinux2014_aarch64.whl", hash = "sha256:e3826aeb4e4399de0c6885bd8be7ce2f629fa0010f0013f1183e0726b3d25e40", size = 71319629, upload-time = "2025-11-28T02:23:11.995Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/a0/b5e0099e1b1b3dc2e4c6c78a6630fd97ed2706cd47daba4d7872897cfe86/ray-2.52.1-cp313-cp313-manylinux2014_x86_64.whl", hash = "sha256:bbe492c780a39a64bd3d0766cad10d54cf12222df88d287ec2d8f2d52de37c79", size = 72181309, upload-time = "2025-11-28T02:23:17.565Z" },
 ]
 
 [package.optional-dependencies]
 default = [
-    { name = "aiohttp", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "aiohttp-cors", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "colorful", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "grpcio", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "opencensus", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "opentelemetry-exporter-prometheus", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "opentelemetry-proto", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "opentelemetry-sdk", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "prometheus-client", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "py-spy", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "pydantic", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "requests", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "smart-open", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "virtualenv", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
+    { name = "aiohttp", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "aiohttp-cors", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "colorful", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "grpcio", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "opencensus", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "opentelemetry-exporter-prometheus", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "opentelemetry-proto", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "opentelemetry-sdk", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "prometheus-client", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "py-spy", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "pydantic", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "requests", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "smart-open", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "virtualenv", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
 ]
 tune = [
-    { name = "fsspec", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "pandas", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "pyarrow", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "pydantic", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "requests", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "tensorboardx", marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
+    { name = "fsspec", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "pandas", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "pyarrow", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "pydantic", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "requests", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "tensorboardx", marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
 ]
 
 [[package]]
@@ -5056,8 +5005,8 @@ version = "0.21.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-doc" },
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' and sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a5/ca/0d9d822fd8a4c7e830cba36a2557b070d4b4a9558a0460377a61f8fb315d/typer_slim-0.21.2.tar.gz", hash = "sha256:78f20d793036a62aaf9c3798306142b08261d4b2a941c6e463081239f062a2f9", size = 120497, upload-time = "2026-02-10T19:33:45.836Z" }
 wheels = [
@@ -5122,8 +5071,8 @@ name = "uvicorn"
 version = "0.40.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' and sys_platform == 'win32'" },
-    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14' or sys_platform != 'win32'" },
+    { name = "click", version = "8.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14' and sys_platform == 'win32'" },
     { name = "h11" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c3/d1/8f3c683c9561a4e6689dd3b1d345c815f10f86acd044ee1fb9a4dcd0b8c5/uvicorn-0.40.0.tar.gz", hash = "sha256:839676675e87e73694518b5574fd0f24c9d97b46bea16df7b8c05ea1a51071ea", size = 81761, upload-time = "2025-12-21T14:16:22.45Z" }
