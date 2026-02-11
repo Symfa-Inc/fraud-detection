@@ -24,6 +24,7 @@ dev = [
     "pyarrow>=23.0.0",
     "pytest>=9.0.2",
     "ruff>=0.14.14",
+    "scikit-learn>=1.8.0",
 ]
 
 [build-system]
