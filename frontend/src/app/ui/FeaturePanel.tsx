@@ -24,12 +24,16 @@ type FeaturePanelProps = {
   features: Feature[];
   featureValues: Record<string, string | number>;
   onFeatureChange: (id: string, value: string | number) => void;
+  onEvaluate?: () => void;
+  isEvaluating?: boolean;
 };
 
 export default function FeaturePanel({
   features,
   featureValues,
   onFeatureChange,
+  onEvaluate,
+  isEvaluating = false,
 }: FeaturePanelProps) {
   return (
     <aside className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:w-72">
@@ -40,9 +44,14 @@ export default function FeaturePanel({
           </p>
           <h1 className="mt-2 text-2xl font-semibold">Fraud Signals</h1>
         </div>
-        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-          Active
-        </span>
+        <button
+          type="button"
+          onClick={onEvaluate}
+          disabled={isEvaluating}
+          className="rounded-full bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isEvaluating ? "Evaluating…" : "Evaluate"}
+        </button>
       </div>
       <p className="mt-3 text-sm text-slate-500">
         Inputs used by the model to evaluate this claim.

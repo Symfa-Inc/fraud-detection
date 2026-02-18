@@ -1,8 +1,10 @@
 """FastAPI application - minimal entry point."""
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
+
+from fraud_detection.model import load_predictor, predict_fraud
 
 app = FastAPI(
     title="Fraud Detection API",
@@ -24,15 +26,35 @@ app.add_middleware(
 
 
 class PredictionRequest(BaseModel):
-    """Prediction request schema."""
+    """Prediction request schema - all features from the Claim Features panel."""
 
-    claim_number: int
+    age_of_driver: int
+    gender: str
+    marital_status: int
+    safty_rating: int
+    annual_income: int
+    high_education_ind: str
+    address_change_ind: str
+    living_status: str
+    zip_code: int
+    claim_day_of_week: str
+    accident_site: str
+    past_num_of_claims: int
+    witness_present_ind: str
+    liab_prct: int
+    channel: str
+    policy_report_filed_ind: str
+    claim_est_payout: float
+    age_of_vehicle: float
+    vehicle_category: str
+    vehicle_price: float
+    vehicle_color: str
+    vehicle_weight: float
 
 
 class PredictionResponse(BaseModel):
     """Prediction response schema."""
 
-    claim_number: int
     fraud_probability: float
     is_fraud: bool
 
@@ -46,10 +68,10 @@ async def root() -> dict[str, str]:
 
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: PredictionRequest) -> PredictionResponse:
-    """Predict fraud for a claim."""
-    # TODO: Implement ML model prediction
+    """Predict fraud for a claim using the trained model."""
+    predictor = load_predictor()
+    proba, is_fraud = predict_fraud(predictor, request)
     return PredictionResponse(
-        claim_number=request.claim_number,
-        fraud_probability=0.0,
-        is_fraud=False,
+        fraud_probability=proba,
+        is_fraud=is_fraud,
     )

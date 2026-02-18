@@ -1300,7 +1300,9 @@ name = "fraud-detection"
 version = "0.1.0"
 source = { editable = "backend" }
 dependencies = [
+    { name = "autogluon" },
     { name = "fastapi" },
+    { name = "pandas" },
     { name = "pydantic" },
     { name = "uvicorn" },
 ]
@@ -1323,7 +1325,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "autogluon", extras = ["tabular"], specifier = ">=1.5.0" },
     { name = "fastapi", specifier = ">=0.128.0" },
+    { name = "pandas", specifier = ">=2.0.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "uvicorn", specifier = ">=0.40.0" },
 ]
