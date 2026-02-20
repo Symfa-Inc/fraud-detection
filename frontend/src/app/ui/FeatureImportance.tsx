@@ -11,7 +11,7 @@ type FeatureImportanceProps = {
 
 export default function FeatureImportance({ items }: FeatureImportanceProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
@@ -21,9 +21,6 @@ export default function FeatureImportance({ items }: FeatureImportanceProps) {
             Why the model decided this
           </h3>
         </div>
-        <span className="text-xs font-semibold text-slate-400">
-          For this claim only
-        </span>
       </div>
       <div className="mt-6 space-y-4">
         {items.map((item) => (

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Annual income",
+    "value": 1.0
+  },
+  {
+    "name": "Age of driver",
+    "value": 0.9056
+  },
+  {
+    "name": "Claim day of week",
+    "value": 0.6102
+  },
+  {
+    "name": "High education",
+    "value": 0.1786
+  },
+  {
+    "name": "Past number of claims",
+    "value": 0.1425
+  },
+  {
+    "name": "Safety rating",
+    "value": 0.1245
+  },
+  {
+    "name": "Witness present",
+    "value": 0.1194
+  },
+  {
+    "name": "Gender",
+    "value": 0.1118
+  },
+  {
+    "name": "Claim estimated payout",
+    "value": 0.1034
+  },
+  {
+    "name": "Living status",
+    "value": 0.0976
+  }
+]

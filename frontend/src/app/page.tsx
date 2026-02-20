@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  getFeatureImportance,
   logBackendRoot,
   predict,
   type PredictionRequest,
@@ -10,8 +11,23 @@ import {
 import FeatureImportance from "./ui/FeatureImportance";
 import FeaturePanel, { Feature } from "./ui/FeaturePanel";
 import StatusSummary from "./ui/StatusSummary";
+import SummaryPanel from "./ui/SummaryPanel";
 
-const features: Feature[] = [
+// Top 10 by SHAP importance (claim_date excluded, then next feature included)
+const TOP_FEATURE_IDS = [
+  "annual_income",
+  "age_of_driver",
+  "claim_day_of_week",
+  "high_education_ind",
+  "past_num_of_claims",
+  "safty_rating",
+  "witness_present_ind",
+  "gender",
+  "claim_est_payout",
+  "living_status",
+] as const;
+
+const allFeatures: Feature[] = [
   {
     id: "age_of_driver",
     label: "Age of driver",
@@ -198,13 +214,27 @@ const features: Feature[] = [
   },
 ];
 
-const featureImportance = [
-  { name: "Claim estimated payout", value: 0.92 },
-  { name: "Past number of claims", value: 0.81 },
-  { name: "Accident site", value: 0.74 },
-  { name: "Policy report filed", value: 0.63 },
-  { name: "Witness present", value: 0.58 },
-  { name: "Age of vehicle", value: 0.41 },
+const featuresOrdered = TOP_FEATURE_IDS.flatMap((id) =>
+  allFeatures.filter((f) => f.id === id)
+);
+
+const DEFAULT_VALUES: Record<string, string | number> = {};
+allFeatures.forEach((f) => {
+  DEFAULT_VALUES[f.id] = f.defaultValue;
+});
+
+// Fallback when /feature-importance API not available (matches reduced model SHAP)
+const DEFAULT_FEATURE_IMPORTANCE = [
+  { name: "Annual income", value: 1 },
+  { name: "Age of driver", value: 0.91 },
+  { name: "Claim day of week", value: 0.61 },
+  { name: "High education", value: 0.18 },
+  { name: "Past number of claims", value: 0.14 },
+  { name: "Safety rating", value: 0.12 },
+  { name: "Witness present", value: 0.12 },
+  { name: "Gender", value: 0.11 },
+  { name: "Claim estimated payout", value: 0.1 },
+  { name: "Living status", value: 0.1 },
 ];
 
 const clamp = (value: number, min = 0, max = 1) =>
@@ -222,31 +252,20 @@ const threshold = 0.65;
 function buildPayload(
   featureValues: Record<string, string | number>
 ): PredictionRequest {
-  const num = (id: string) => getNumberValue(featureValues[id] ?? 0);
-  const str = (id: string) => String(featureValues[id] ?? "");
+  const merged = { ...DEFAULT_VALUES, ...featureValues };
+  const num = (id: string) => getNumberValue(merged[id] ?? 0);
+  const str = (id: string) => String(merged[id] ?? "");
   return {
-    age_of_driver: num("age_of_driver"),
-    gender: str("gender"),
-    marital_status: num("marital_status"),
-    safty_rating: num("safty_rating"),
     annual_income: num("annual_income"),
-    high_education_ind: str("high_education_ind"),
-    address_change_ind: str("address_change_ind"),
-    living_status: str("living_status"),
-    zip_code: num("zip_code"),
+    age_of_driver: num("age_of_driver"),
     claim_day_of_week: str("claim_day_of_week"),
-    accident_site: str("accident_site"),
+    high_education_ind: str("high_education_ind"),
     past_num_of_claims: num("past_num_of_claims"),
+    safty_rating: num("safty_rating"),
     witness_present_ind: str("witness_present_ind"),
-    liab_prct: num("liab_prct"),
-    channel: str("channel"),
-    policy_report_filed_ind: str("policy_report_filed_ind"),
+    gender: str("gender"),
     claim_est_payout: num("claim_est_payout"),
-    age_of_vehicle: num("age_of_vehicle"),
-    vehicle_category: str("vehicle_category"),
-    vehicle_price: num("vehicle_price"),
-    vehicle_color: str("vehicle_color"),
-    vehicle_weight: num("vehicle_weight"),
+    living_status: str("living_status"),
   };
 }
 
@@ -255,13 +274,17 @@ export default function Home() {
     logBackendRoot();
   }, []);
 
-  const [featureValues, setFeatureValues] = useState(() => {
-    const initialValues: Record<string, string | number> = {};
-    features.forEach((feature) => {
-      initialValues[feature.id] = feature.defaultValue;
+  useEffect(() => {
+    getFeatureImportance().then((data) => {
+      if (data.length > 0) {
+        setFeatureImportance(data);
+      }
     });
-    return initialValues;
-  });
+  }, []);
+
+  const [featureValues, setFeatureValues] = useState(() => ({
+    ...DEFAULT_VALUES,
+  }));
 
   const [prediction, setPrediction] = useState<{
     riskScore: number;
@@ -270,6 +293,9 @@ export default function Home() {
   } | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [featureImportance, setFeatureImportance] = useState(
+    DEFAULT_FEATURE_IMPORTANCE
+  );
 
   const updateFeatureValue = (id: string, value: string | number) => {
     setFeatureValues((prev) => ({ ...prev, [id]: value }));
@@ -284,10 +310,7 @@ export default function Home() {
       const res = await predict(payload);
       const riskScore = res.fraud_probability;
       const status = res.is_fraud ? "Status: Fraud Likely" : "Status: Low Risk";
-      const summary = res.is_fraud
-        ? "The model predicts a high probability of fraud for this claim. This assessment is driven by elevated risk indicators in the selected features."
-        : "The model predicts a low probability of fraud for this claim. Most signals fall within expected ranges, lowering the overall risk.";
-      setPrediction({ riskScore, status, summary });
+      setPrediction({ riskScore, status, summary: res.summary });
     } catch (err) {
       setError("Prediction failed. Is the backend running?");
       setPrediction(null);
@@ -315,16 +338,16 @@ export default function Home() {
       className="min-h-screen bg-slate-50 text-slate-900"
       style={{ backgroundImage }}
     >
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10 md:flex-row">
+      <div className="mx-auto flex min-h-screen w-full max-w-[85rem] flex-col gap-8 px-8 py-10 md:flex-row">
         <FeaturePanel
-          features={features}
+          features={featuresOrdered}
           featureValues={featureValues}
           onFeatureChange={updateFeatureValue}
           onEvaluate={handleEvaluate}
           isEvaluating={isEvaluating}
         />
 
-        <main className="flex-1">
+        <main className="min-w-0 flex-1">
           <div className="space-y-8 md:sticky md:top-8 md:self-start">
             {error && (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-sm text-rose-700">
@@ -333,10 +356,11 @@ export default function Home() {
             )}
             <StatusSummary
               status={status}
-              summary={summary}
               score={riskScore}
               threshold={threshold}
             />
+
+            <SummaryPanel summary={summary} />
 
             <FeatureImportance items={featureImportance} />
           </div>

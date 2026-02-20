@@ -1,10 +1,14 @@
 """FastAPI application - minimal entry point."""
 
+import json
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
+from fraud_detection.config import FEATURE_IMPORTANCE_PATH
 from fraud_detection.model import load_predictor, predict_fraud
+from fraud_detection.summarizer import generate_summary
 
 app = FastAPI(
     title="Fraud Detection API",
@@ -26,30 +30,18 @@ app.add_middleware(
 
 
 class PredictionRequest(BaseModel):
-    """Prediction request schema - all features from the Claim Features panel."""
+    """Prediction request schema - 10 features used by the Claim Features panel."""
 
-    age_of_driver: int
-    gender: str
-    marital_status: int
-    safty_rating: int
     annual_income: int
-    high_education_ind: str
-    address_change_ind: str
-    living_status: str
-    zip_code: int
+    age_of_driver: int
     claim_day_of_week: str
-    accident_site: str
+    high_education_ind: str
     past_num_of_claims: int
+    safty_rating: int
     witness_present_ind: str
-    liab_prct: int
-    channel: str
-    policy_report_filed_ind: str
+    gender: str
     claim_est_payout: float
-    age_of_vehicle: float
-    vehicle_category: str
-    vehicle_price: float
-    vehicle_color: str
-    vehicle_weight: float
+    living_status: str
 
 
 class PredictionResponse(BaseModel):
@@ -57,6 +49,7 @@ class PredictionResponse(BaseModel):
 
     fraud_probability: float
     is_fraud: bool
+    summary: str
 
 
 # --- Endpoints ---
@@ -66,12 +59,23 @@ async def root() -> dict[str, str]:
     return {"message": "Fraud Detection API", "docs": "/docs"}
 
 
+@app.get("/feature-importance")
+async def feature_importance() -> list[dict[str, str | float]]:
+    """Return top 10 features by SHAP importance. Run scripts/shap_importance.py first."""
+    if not FEATURE_IMPORTANCE_PATH.exists():
+        return []
+    return json.loads(FEATURE_IMPORTANCE_PATH.read_text())
+
+
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: PredictionRequest) -> PredictionResponse:
     """Predict fraud for a claim using the trained model."""
     predictor = load_predictor()
     proba, is_fraud = predict_fraud(predictor, request)
+    features = request.model_dump()
+    summary = generate_summary(proba, is_fraud, features)
     return PredictionResponse(
         fraud_probability=proba,
         is_fraud=is_fraud,
+        summary=summary,
     )

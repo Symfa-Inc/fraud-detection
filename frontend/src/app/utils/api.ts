@@ -15,33 +15,22 @@ export const logBackendRoot = async () => {
 };
 
 export type PredictionRequest = {
-  age_of_driver: number;
-  gender: string;
-  marital_status: number;
-  safty_rating: number;
   annual_income: number;
-  high_education_ind: string;
-  address_change_ind: string;
-  living_status: string;
-  zip_code: number;
+  age_of_driver: number;
   claim_day_of_week: string;
-  accident_site: string;
+  high_education_ind: string;
   past_num_of_claims: number;
+  safty_rating: number;
   witness_present_ind: string;
-  liab_prct: number;
-  channel: string;
-  policy_report_filed_ind: string;
+  gender: string;
   claim_est_payout: number;
-  age_of_vehicle: number;
-  vehicle_category: string;
-  vehicle_price: number;
-  vehicle_color: string;
-  vehicle_weight: number;
+  living_status: string;
 };
 
 export type PredictionResponse = {
   fraud_probability: number;
   is_fraud: boolean;
+  summary: string;
 };
 
 export const predict = async (
@@ -49,6 +38,17 @@ export const predict = async (
 ): Promise<PredictionResponse> => {
   const { data } = await api.post<PredictionResponse>("/predict", payload);
   return data;
+};
+
+export type FeatureImportanceItem = { name: string; value: number };
+
+export const getFeatureImportance = async (): Promise<
+  FeatureImportanceItem[]
+> => {
+  const { data } = await api.get<FeatureImportanceItem[]>(
+    "/feature-importance"
+  );
+  return Array.isArray(data) ? data : [];
 };
 
 // Export the Axios instance

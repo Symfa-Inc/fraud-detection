@@ -36,27 +36,17 @@ export default function FeaturePanel({
   isEvaluating = false,
 }: FeaturePanelProps) {
   return (
-    <aside className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:w-72">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Claim Features
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold">Fraud Signals</h1>
-        </div>
-        <button
-          type="button"
-          onClick={onEvaluate}
-          disabled={isEvaluating}
-          className="rounded-full bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isEvaluating ? "Evaluating…" : "Evaluate"}
-        </button>
+    <aside className="w-full shrink-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:w-[26rem] lg:w-[30rem]">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          Claim Features
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold">Fraud Signals</h1>
       </div>
       <p className="mt-3 text-sm text-slate-500">
         Inputs used by the model to evaluate this claim.
       </p>
-      <div className="mt-6 space-y-4 text-sm">
+      <div className="mt-6 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         {features.map((feature) => {
           const rawValue = featureValues[feature.id];
           const numericValue =
@@ -75,14 +65,9 @@ export default function FeaturePanel({
           return (
             <label
               key={feature.id}
-              className="block space-y-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-3"
+              className="flex min-h-[6.5rem] min-w-0 flex-col justify-between gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-3"
             >
-              <div className="flex items-center justify-between">
-                <span className="font-medium">{feature.label}</span>
-                <span className="text-xs font-semibold text-slate-400">
-                  {feature.type === "number" ? "Numeric" : "Category"}
-                </span>
-              </div>
+              <span className="block font-medium">{feature.label}</span>
               {feature.type === "number" ? (
                 <div className="space-y-2">
                   <input
@@ -140,6 +125,14 @@ export default function FeaturePanel({
           );
         })}
       </div>
+      <button
+        type="button"
+        onClick={onEvaluate}
+        disabled={isEvaluating}
+        className="mt-6 w-full rounded-xl bg-indigo-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isEvaluating ? "Evaluating…" : "Evaluate"}
+      </button>
     </aside>
   );
 }

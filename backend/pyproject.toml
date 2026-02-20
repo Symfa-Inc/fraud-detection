@@ -9,7 +9,9 @@ requires-python = ">=3.13"
 dependencies = [
     "autogluon>=1.5.0",
     "fastapi>=0.128.0",
+    "openai>=1.0.0",
     "pandas>=2.0.0",
+    "python-dotenv>=1.0.0",
     "pydantic>=2.12.5",
     "uvicorn>=0.40.0",
 ]
@@ -17,6 +19,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "autogluon>=1.5.0",
+    "shap>=0.45.0",
     "httpx>=0.28.1",
     "ipykernel>=7.1.0",
     "matplotlib>=3.10.8",
