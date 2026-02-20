@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
   getFeatureImportance,
-  logBackendRoot,
   predict,
   type PredictionRequest,
 } from "./utils/api";
@@ -29,40 +28,6 @@ const TOP_FEATURE_IDS = [
 
 const allFeatures: Feature[] = [
   {
-    id: "age_of_driver",
-    label: "Age of driver",
-    type: "number",
-    defaultValue: 45,
-    min: 18,
-    max: 90,
-    step: 1,
-  },
-  {
-    id: "gender",
-    label: "Gender",
-    type: "select",
-    options: ["F", "M"],
-    defaultValue: "M",
-  },
-  {
-    id: "marital_status",
-    label: "Marital status",
-    type: "number",
-    defaultValue: 1,
-    min: 0,
-    max: 1,
-    step: 1,
-  },
-  {
-    id: "safty_rating",
-    label: "Safety rating",
-    type: "number",
-    defaultValue: 75,
-    min: 0,
-    max: 100,
-    step: 1,
-  },
-  {
     id: "annual_income",
     label: "Annual income",
     type: "number",
@@ -72,33 +37,12 @@ const allFeatures: Feature[] = [
     step: 1000,
   },
   {
-    id: "high_education_ind",
-    label: "High education",
-    type: "select",
-    options: ["0", "1"],
-    defaultValue: "1",
-  },
-  {
-    id: "address_change_ind",
-    label: "Address change",
-    type: "select",
-    options: ["0", "1"],
-    defaultValue: "0",
-  },
-  {
-    id: "living_status",
-    label: "Living status",
-    type: "select",
-    options: ["Own", "Rent"],
-    defaultValue: "Own",
-  },
-  {
-    id: "zip_code",
-    label: "Zip code",
+    id: "age_of_driver",
+    label: "Age of driver",
     type: "number",
-    defaultValue: 50051,
-    min: 10000,
-    max: 99999,
+    defaultValue: 45,
+    min: 18,
+    max: 90,
     step: 1,
   },
   {
@@ -117,11 +61,11 @@ const allFeatures: Feature[] = [
     defaultValue: "Monday",
   },
   {
-    id: "accident_site",
-    label: "Accident site",
+    id: "high_education_ind",
+    label: "High education",
     type: "select",
-    options: ["Local", "Parking Lot", "Highway"],
-    defaultValue: "Local",
+    options: ["0", "1"],
+    defaultValue: "1",
   },
   {
     id: "past_num_of_claims",
@@ -133,6 +77,15 @@ const allFeatures: Feature[] = [
     step: 1,
   },
   {
+    id: "safty_rating",
+    label: "Safety rating",
+    type: "number",
+    defaultValue: 75,
+    min: 0,
+    max: 100,
+    step: 1,
+  },
+  {
     id: "witness_present_ind",
     label: "Witness present",
     type: "select",
@@ -140,27 +93,11 @@ const allFeatures: Feature[] = [
     defaultValue: "0",
   },
   {
-    id: "liab_prct",
-    label: "Liability percent",
-    type: "number",
-    defaultValue: 50,
-    min: 0,
-    max: 100,
-    step: 1,
-  },
-  {
-    id: "channel",
-    label: "Channel",
+    id: "gender",
+    label: "Gender",
     type: "select",
-    options: ["Broker", "Phone", "Online"],
-    defaultValue: "Broker",
-  },
-  {
-    id: "policy_report_filed_ind",
-    label: "Policy report filed",
-    type: "select",
-    options: ["0", "1"],
-    defaultValue: "0",
+    options: ["F", "M"],
+    defaultValue: "M",
   },
   {
     id: "claim_est_payout",
@@ -172,45 +109,11 @@ const allFeatures: Feature[] = [
     step: 100,
   },
   {
-    id: "age_of_vehicle",
-    label: "Age of vehicle",
-    type: "number",
-    defaultValue: 5,
-    min: 0,
-    max: 15,
-    step: 1,
-  },
-  {
-    id: "vehicle_category",
-    label: "Vehicle category",
+    id: "living_status",
+    label: "Living status",
     type: "select",
-    options: ["Compact", "Large", "Medium"],
-    defaultValue: "Large",
-  },
-  {
-    id: "vehicle_price",
-    label: "Vehicle price",
-    type: "number",
-    defaultValue: 20000,
-    min: 5000,
-    max: 60000,
-    step: 500,
-  },
-  {
-    id: "vehicle_color",
-    label: "Vehicle color",
-    type: "select",
-    options: ["black", "blue", "gray", "other", "red", "silver", "white"],
-    defaultValue: "black",
-  },
-  {
-    id: "vehicle_weight",
-    label: "Vehicle weight",
-    type: "number",
-    defaultValue: 20000,
-    min: 5000,
-    max: 65000,
-    step: 500,
+    options: ["Own", "Rent"],
+    defaultValue: "Own",
   },
 ];
 
@@ -218,10 +121,9 @@ const featuresOrdered = TOP_FEATURE_IDS.flatMap((id) =>
   allFeatures.filter((f) => f.id === id)
 );
 
-const DEFAULT_VALUES: Record<string, string | number> = {};
-allFeatures.forEach((f) => {
-  DEFAULT_VALUES[f.id] = f.defaultValue;
-});
+const DEFAULT_VALUES: Record<string, string | number> = Object.fromEntries(
+  allFeatures.map((f) => [f.id, f.defaultValue])
+);
 
 // Fallback when /feature-importance API not available (matches reduced model SHAP)
 const DEFAULT_FEATURE_IMPORTANCE = [
@@ -236,9 +138,6 @@ const DEFAULT_FEATURE_IMPORTANCE = [
   { name: "Claim estimated payout", value: 0.1 },
   { name: "Living status", value: 0.1 },
 ];
-
-const clamp = (value: number, min = 0, max = 1) =>
-  Math.min(Math.max(value, min), max);
 
 const getNumberValue = (value: string | number) => {
   if (value === "") {
@@ -271,10 +170,6 @@ function buildPayload(
 
 export default function Home() {
   useEffect(() => {
-    logBackendRoot();
-  }, []);
-
-  useEffect(() => {
     getFeatureImportance().then((data) => {
       if (data.length > 0) {
         setFeatureImportance(data);
@@ -296,6 +191,7 @@ export default function Home() {
   const [featureImportance, setFeatureImportance] = useState(
     DEFAULT_FEATURE_IMPORTANCE
   );
+  const [resultKey, setResultKey] = useState(0);
 
   const updateFeatureValue = (id: string, value: string | number) => {
     setFeatureValues((prev) => ({ ...prev, [id]: value }));
@@ -311,6 +207,7 @@ export default function Home() {
       const riskScore = res.fraud_probability;
       const status = res.is_fraud ? "Status: Fraud Likely" : "Status: Low Risk";
       setPrediction({ riskScore, status, summary: res.summary });
+      setResultKey((k) => k + 1);
     } catch (err) {
       setError("Prediction failed. Is the backend running?");
       setPrediction(null);
@@ -354,15 +251,18 @@ export default function Home() {
                 {error}
               </div>
             )}
-            <StatusSummary
-              status={status}
-              score={riskScore}
-              threshold={threshold}
-            />
-
-            <SummaryPanel summary={summary} />
-
-            <FeatureImportance items={featureImportance} />
+            <div
+              key={prediction ? resultKey : "initial"}
+              className={prediction ? "animate-fade-slide-in space-y-8" : "space-y-8"}
+            >
+              <StatusSummary
+                status={status}
+                score={riskScore}
+                threshold={threshold}
+              />
+              <SummaryPanel summary={summary} />
+              <FeatureImportance items={featureImportance} />
+            </div>
           </div>
         </main>
       </div>

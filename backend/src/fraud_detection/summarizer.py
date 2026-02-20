@@ -34,7 +34,10 @@ Write a concise summary of the assessment."""
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You write brief, professional summaries for insurance claims assessments."},
+                {
+                    "role": "system",
+                    "content": "You write brief, professional summaries for insurance claims assessments.",
+                },
                 {"role": "user", "content": prompt},
             ],
             max_tokens=150,

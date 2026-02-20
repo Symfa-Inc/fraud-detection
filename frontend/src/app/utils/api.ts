@@ -5,15 +5,6 @@ const api = axios.create({
     baseURL: "http://localhost:8000",
 });
 
-export const logBackendRoot = async () => {
-  try {
-    const response = await api.get("/");
-    console.log("Backend root response:", response.data);
-  } catch (error) {
-    console.error("Failed to fetch backend root:", error);
-  }
-};
-
 export type PredictionRequest = {
   annual_income: number;
   age_of_driver: number;

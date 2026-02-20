@@ -78,7 +78,7 @@ def main() -> None:
 
     # Mean absolute SHAP per feature
     importance = pd.DataFrame(
-        {"feature": X_sample.columns, "importance": mean_abs}
+        {"feature": X_sample.columns, "importance": mean_abs},
     ).sort_values("importance", ascending=False)
 
     # Exclude claim_date (not editable in UI), take top 10 from the rest

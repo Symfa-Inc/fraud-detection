@@ -36,7 +36,7 @@ export default function FeaturePanel({
   isEvaluating = false,
 }: FeaturePanelProps) {
   return (
-    <aside className="w-full shrink-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:w-[26rem] lg:w-[30rem]">
+    <aside className="w-full shrink-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:w-[20rem] lg:w-[22rem]">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
           Claim Features
@@ -46,7 +46,7 @@ export default function FeaturePanel({
       <p className="mt-3 text-sm text-slate-500">
         Inputs used by the model to evaluate this claim.
       </p>
-      <div className="mt-6 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-4 text-sm">
         {features.map((feature) => {
           const rawValue = featureValues[feature.id];
           const numericValue =
