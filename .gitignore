@@ -207,4 +207,4 @@ marimo/_lsp/
 __marimo__/
 
 # Autogluon
-models/
+backend/models/AutogluonModels/
