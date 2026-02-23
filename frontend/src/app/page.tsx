@@ -185,6 +185,8 @@ export default function Home() {
     riskScore: number;
     status: string;
     summary: string;
+    featureContributions: { name: string; value: string; impact: number }[];
+    shapBaseValue: number;
   } | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -206,7 +208,13 @@ export default function Home() {
       const res = await predict(payload);
       const riskScore = res.fraud_probability;
       const status = res.is_fraud ? "Status: Fraud Likely" : "Status: Low Risk";
-      setPrediction({ riskScore, status, summary: res.summary });
+      setPrediction({
+        riskScore,
+        status,
+        summary: res.summary,
+        featureContributions: res.feature_contributions ?? [],
+        shapBaseValue: res.shap_base_value ?? 0,
+      });
       setResultKey((k) => k + 1);
     } catch (err) {
       setError("Prediction failed. Is the backend running?");
@@ -261,7 +269,12 @@ export default function Home() {
                 threshold={threshold}
               />
               <SummaryPanel summary={summary} />
-              <FeatureImportance items={featureImportance} />
+              <FeatureImportance
+                items={featureImportance}
+                contributions={prediction?.featureContributions}
+                baseValue={prediction?.shapBaseValue}
+                riskScore={prediction?.riskScore}
+              />
             </div>
           </div>
         </main>

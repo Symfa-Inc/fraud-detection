@@ -18,10 +18,18 @@ export type PredictionRequest = {
   living_status: string;
 };
 
+export type FeatureContribution = {
+  name: string;
+  value: string;
+  impact: number;
+};
+
 export type PredictionResponse = {
   fraud_probability: number;
   is_fraud: boolean;
   summary: string;
+  feature_contributions?: FeatureContribution[];
+  shap_base_value?: number;
 };
 
 export const predict = async (

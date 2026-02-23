@@ -1311,10 +1311,12 @@ source = { editable = "backend" }
 dependencies = [
     { name = "autogluon" },
     { name = "fastapi" },
+    { name = "numpy" },
     { name = "openai" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "shap" },
     { name = "uvicorn" },
 ]
 
@@ -1339,10 +1341,12 @@ dev = [
 requires-dist = [
     { name = "autogluon", specifier = ">=1.5.0" },
     { name = "fastapi", specifier = ">=0.128.0" },
+    { name = "numpy", specifier = ">=1.24.0" },
     { name = "openai", specifier = ">=1.0.0" },
     { name = "pandas", specifier = ">=2.0.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "shap", specifier = ">=0.45.0" },
     { name = "uvicorn", specifier = ">=0.40.0" },
 ]
 

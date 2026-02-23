@@ -7,7 +7,8 @@ from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
 from fraud_detection.config import FEATURE_IMPORTANCE_PATH
-from fraud_detection.model import load_predictor, predict_fraud
+from fraud_detection.explainer import compute_contributions
+from fraud_detection.model import load_predictor, predict_fraud, request_to_row
 from fraud_detection.summarizer import generate_summary
 
 app = FastAPI(
@@ -44,12 +45,20 @@ class PredictionRequest(BaseModel):
     living_status: str
 
 
+class FeatureContribution(BaseModel):
+    name: str
+    value: str
+    impact: float
+
+
 class PredictionResponse(BaseModel):
     """Prediction response schema."""
 
     fraud_probability: float
     is_fraud: bool
     summary: str
+    feature_contributions: list[FeatureContribution] = []
+    shap_base_value: float = 0.0
 
 
 # --- Endpoints ---
@@ -74,8 +83,12 @@ async def predict(request: PredictionRequest) -> PredictionResponse:
     proba, is_fraud = predict_fraud(predictor, request)
     features = request.model_dump()
     summary = generate_summary(proba, is_fraud, features)
+    row = request_to_row(request)
+    contributions, base_value = compute_contributions(row)
     return PredictionResponse(
         fraud_probability=proba,
         is_fraud=is_fraud,
         summary=summary,
+        feature_contributions=contributions,
+        shap_base_value=base_value,
     )
