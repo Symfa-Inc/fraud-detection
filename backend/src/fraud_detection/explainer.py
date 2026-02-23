@@ -1,7 +1,5 @@
 """Per-instance SHAP explanations for fraud predictions."""
 
-from pathlib import Path
-
 import pandas as pd
 
 from fraud_detection.config import MODEL_DIR, TRAIN_DATA_PATH
@@ -59,17 +57,14 @@ def _get_explainer():
     return _explainer
 
 
-def compute_contributions(row: dict[str, str | int | float]) -> tuple[list[dict], float]:
+def compute_contributions(
+    row: dict[str, str | int | float],
+) -> tuple[list[dict], float]:
     """
     Compute per-instance SHAP contributions for a single prediction row.
     Returns (contributions, base_value) where base_value + sum(impacts) = risk score.
     Impact: positive = pushes towards fraud, negative = pushes towards low risk.
     """
-    try:
-        import shap
-    except ImportError:
-        return [], 0.0
-
     import numpy as np
 
     df_row = pd.DataFrame([row])[FEATURE_ORDER]
@@ -87,12 +82,14 @@ def compute_contributions(row: dict[str, str | int | float]) -> tuple[list[dict]
         val = row.get(feat, "")
         impact_val = sv_flat[i]
         impact_scalar = float(np.asarray(impact_val).flat[0])
-        result.append({
-            "name": FEATURE_LABELS.get(feat, feat),
-            "value": str(val),
-            "impact": round(impact_scalar, 4),
-        })
+        result.append(
+            {
+                "name": FEATURE_LABELS.get(feat, feat),
+                "value": str(val),
+                "impact": round(impact_scalar, 4),
+            },
+        )
 
     # Sort by absolute impact: most influential features first (either direction)
-    result.sort(key=lambda x: -abs(x["impact"]))
+    result.sort(key=lambda x: -abs(x["impact"]))  # type: ignore
     return result, base_value
