@@ -6,6 +6,7 @@ FastAPI backend for the Insurance Claim Fraud Detection system.
 
 ```
 backend/
+├── Dockerfile              # Container configuration
 ├── src/fraud_detection/    # Python package (API code)
 │   ├── __init__.py
 │   └── main.py             # FastAPI application
@@ -28,6 +29,14 @@ uv run uvicorn fraud_detection.main:app --reload --port 8000
 
 - API: http://localhost:8000
 - Docs: http://localhost:8000/docs
+
+## 🐳 Docker
+
+```bash
+# From backend/ directory
+docker build -t fraud-detection-backend .
+docker run -p 8000:8000 fraud-detection-backend
+```
 
 ## 📦 Package Management
 

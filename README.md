@@ -8,6 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6.svg)](https://www.typescriptlang.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128-009688.svg)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.6-F7931E.svg?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 
@@ -17,50 +18,38 @@
 
 </div>
 
-## 📋 Overview
 
-A machine learning prototype for detecting fraudulent insurance claims, based on the [2023 Travelers NESS Statathon Kaggle Competition](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview). This project aims to develop a robust fraud detection system for insurance claims using machine learning techniques. Fraudulent claims cost the insurance industry billions of dollars annually, making accurate detection crucial for maintaining affordable premiums and operational efficiency.
+## Overview
 
-## 🎯 Problem Statement
+Fraud Detection is a machine learning prototype for identifying potentially fraudulent insurance claims. Based on the [2023 Travelers NESS Statathon Kaggle Competition](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview), it helps insurance companies reduce financial losses, streamline investigations, and allocate resources more efficiently through automated prediction and SHAP-based explainability.
 
-The goal is to build a predictive model that can identify potentially fraudulent insurance claims based on various claim and policyholder characteristics. This binary classification task helps insurance companies:
+### Key Features
 
-- Reduce financial losses from fraudulent claims
-- Streamline the claims investigation process
-- Allocate investigation resources more efficiently
+- **Fraud Prediction** – Classify claims as fraudulent or legitimate using trained AutoGluon models
+- **Probability Scoring** – Output fraud probability and binary decision (configurable threshold)
+- **Explainability** – SHAP-based feature contributions for each prediction
+- **Feature Importance** – Global feature importance visualization from model training
+- **Summary Generation** – Natural language summaries of prediction reasoning
+- **Interactive UI** – Next.js dashboard for exploring predictions and feature impacts
 
-## 📁 Project Structure
+### Target Audience
 
-```
-fraud-detection/
-├── backend/                        # 🐍 Python Backend (UV workspace member)
-│   ├── src/fraud_detection/        # FastAPI application
-│   │   ├── __init__.py
-│   │   └── main.py                 # API endpoints
-│   ├── models/                     # Trained ML model artifacts
-│   ├── notebooks/                  # Jupyter notebooks (EDA, experiments)
-│   ├── scripts/                    # Training & preprocessing scripts
-│   ├── data/                       # Datasets
-│   │   └── source.csv
-│   └── pyproject.toml              # Backend dependencies
-│
-├── frontend/                       # ⚛️ Next.js Frontend
-│   ├── src/app/
-│   │   ├── layout.js
-│   │   ├── page.js
-│   │   └── globals.css
-│   └── package.json
-│
-├── pyproject.toml                  # UV workspace definition
-├── uv.lock                         # Lockfile
-├── .pre-commit-config.yaml         # Code quality hooks
-└── README.md
-```
+Claims analysts, fraud investigators, and operations teams who need to identify and prioritize potentially fraudulent claims for review.
 
+## Tech Stack
 
-## 📊 Dataset
+| Category | Technologies |
+|----------|-------------|
+| **Backend** | Python 3.13, FastAPI |
+| **Frontend** | TypeScript, Next.js, Node.js |
+| **AI/ML** | AutoGluon, scikit-learn, SHAP |
+| **Data Validation** | Pydantic |
+| **Package Management** | uv (backend), pnpm (frontend) |
+| **Deployment** | Docker |
 
-The dataset contains insurance claim records with the following features:
+## Dataset
+
+The dataset contains insurance claim records from the Travelers NESS Statathon competition:
 
 ### Driver Demographics
 | Feature | Description |
@@ -102,75 +91,85 @@ The dataset contains insurance claim records with the following features:
 |---------|-------------|
 | `fraud` | **Target** (1 = Fraudulent, 0 = Legitimate) |
 
-## 🛠️ Tech Stack
+## Project Structure
 
-### Backend
-- **Python 3.13+**
-- **FastAPI** - Modern, high-performance web framework
-- **Pydantic** - Data validation
-- **uvicorn** - ASGI server
+```
+fraud-detection/
+├── backend/                        # Python backend (FastAPI)
+│   ├── Dockerfile                  # Backend container
+│   ├── src/fraud_detection/        # Application code
+│   ├── models/                     # Trained ML model artifacts
+│   ├── notebooks/                  # Jupyter notebooks (EDA, experiments)
+│   ├── scripts/                    # Training & preprocessing scripts
+│   ├── data/                       # Datasets
+│   └── pyproject.toml              # Backend dependencies
+│
+├── frontend/                       # Next.js frontend application
+│   └── Dockerfile                  # Frontend container
+│
+├── pyproject.toml                  # UV workspace definition
+├── uv.lock                         # Lockfile
+└── README.md
+```
 
-### Frontend
-- **Next.js 16** - React framework with SSR
-- **TypeScript** - Type-safe JavaScript
-- **Tailwind CSS 4** - Utility-first CSS framework
-- **React 19**
-
-### ML & Data Science
-- **pandas** - Data manipulation
-- **scikit-learn** - Machine learning (planned)
-
-### Development
-- **uv** - Fast Python package manager
-- **pre-commit** - Git hooks for code quality
-- **ruff** - Linter and formatter
-- **mypy** - Static type checker
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
 - Python 3.13+
 - Node.js 18+
-- [pnpm](https://pnpm.io/) (fast and efficient Node.js package manager)
-- [uv](https://github.com/astral-sh/uv) (recommended for Python)
+- [uv](https://github.com/astral-sh/uv) package manager (backend)
+- [pnpm](https://pnpm.io/) package manager (frontend)
 
 ### Installation
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Symfa-Inc/fraud-detection.git
-   cd fraud-detection
-   ```
-
-2. **Install Python dependencies:**
-   ```bash
-   uv sync
-   ```
-
-3. **Install frontend dependencies:**
-   ```bash
-   cd frontend
-   pnpm install
-   ```
-
-### Running the Application
-
-**Backend (FastAPI):**
 ```bash
-uv run uvicorn fraud_detection.main:app --reload
-```
-API will be available at: http://localhost:8000
-API docs at: http://localhost:8000/docs
+# Clone the repository
+git clone https://github.com/Symfa-Inc/fraud-detection.git
+cd fraud-detection
 
-**Frontend (Next.js):**
+# Install backend dependencies
+uv sync
+
+# Install frontend dependencies
+cd frontend
+pnpm install
+```
+
+### Running Locally
+
+**Backend:**
+```bash
+uv run uvicorn fraud_detection.main:app --port 8000 --reload
+```
+
+**Frontend:**
 ```bash
 cd frontend
-pnpm dev
+pnpm run dev
 ```
-Frontend will be available at: http://localhost:3000
 
-## 🔗 References
+The backend API will be available at `http://localhost:8000` and the frontend at `http://localhost:3000`.
+
+### Running with Docker
+
+**Backend** (from `backend/` directory):
+```bash
+cd backend
+docker build -t fraud-detection-backend .
+docker run -p 8000:8000 fraud-detection-backend
+```
+
+**Frontend** (from `frontend/` directory):
+```bash
+cd frontend
+docker build -t fraud-detection-frontend .
+docker run -p 3000:3000 -e API_URL=http://localhost:8000 fraud-detection-frontend
+```
+
+Set `API_URL` to your backend URL when the frontend runs in a different host/container.
+
+## References
 
 - [2023 Travelers NESS Statathon on Kaggle](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview)
 - [Travelers Insurance](https://www.travelers.com/)
