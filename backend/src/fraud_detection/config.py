@@ -15,7 +15,7 @@ def _resolve_path(env_key: str, default: str) -> Path:
     return (_BACKEND_ROOT / p) if not p.is_absolute() else p
 
 
-MODEL_DIR = _resolve_path("MODEL_DIR", "models")
+MODEL_DIR = _resolve_path("MODEL_DIR", "models/neuralnet/")
 FEATURE_IMPORTANCE_PATH = _resolve_path(
     "FEATURE_IMPORTANCE_PATH",
     "data/feature_importance_shap.json",

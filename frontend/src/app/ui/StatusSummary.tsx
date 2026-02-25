@@ -39,10 +39,10 @@ export default function StatusSummary({
             className={`mt-2 text-3xl font-semibold tabular-nums ${isLowRisk ? "text-emerald-600" : "text-rose-600"
               }`}
           >
-            {score.toFixed(2)}
+            {(score * 100).toFixed(1)}%
           </p>
-          <p className={`text-xs tabular-nums ${isLowRisk ? "text-emerald-500" : "text-rose-500"}`}>
-            Threshold {threshold.toFixed(2)}
+          <p className={`mt-3 text-xs tabular-nums ${isLowRisk ? "text-emerald-500" : "text-rose-500"}`}>
+            Threshold {(threshold * 100).toFixed(1)}%
           </p>
         </div>
       </div>
