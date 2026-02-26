@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getFeatureImportance,
   predict,
@@ -194,18 +194,26 @@ export default function Home() {
     DEFAULT_FEATURE_IMPORTANCE
   );
   const [resultKey, setResultKey] = useState(0);
+  const lastEvaluatedPayloadRef = useRef<string | null>(null);
 
   const updateFeatureValue = (id: string, value: string | number) => {
     setFeatureValues((prev) => ({ ...prev, [id]: value }));
     setPrediction(null);
+    lastEvaluatedPayloadRef.current = null;
   };
 
   const handleEvaluate = async () => {
+    const payload = buildPayload(featureValues);
+    const payloadKey = JSON.stringify(payload);
+    if (lastEvaluatedPayloadRef.current === payloadKey) {
+      return;
+    }
+
     setIsEvaluating(true);
     setError(null);
     try {
-      const payload = buildPayload(featureValues);
       const res = await predict(payload);
+      lastEvaluatedPayloadRef.current = payloadKey;
       const riskScore = res.fraud_probability;
       const status = res.is_fraud ? "Status: Fraud Likely" : "Status: Low Risk";
       setPrediction({
@@ -274,6 +282,7 @@ export default function Home() {
                 contributions={prediction?.featureContributions}
                 baseValue={prediction?.shapBaseValue}
                 riskScore={prediction?.riskScore}
+                isEvaluated={prediction !== null}
               />
             </div>
           </div>

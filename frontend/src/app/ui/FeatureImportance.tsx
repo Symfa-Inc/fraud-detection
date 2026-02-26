@@ -16,6 +16,7 @@ type FeatureImportanceProps = {
   contributions?: FeatureContribution[] | null;
   baseValue?: number;
   riskScore?: number;
+  isEvaluated?: boolean;
 };
 
 export default function FeatureImportance({
@@ -23,11 +24,18 @@ export default function FeatureImportance({
   contributions,
   baseValue = 0,
   riskScore,
+  isEvaluated = false,
 }: FeatureImportanceProps) {
   const hasContributions = contributions && contributions.length > 0;
 
   return (
-    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section
+      className={`min-w-0 rounded-2xl border p-6 shadow-sm ${
+        isEvaluated
+          ? "border-slate-200 bg-white"
+          : "border-slate-200 bg-slate-50/80"
+      }`}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
@@ -41,16 +49,31 @@ export default function FeatureImportance({
         </div>
       </div>
 
-      {hasContributions ? (
+      {isEvaluated && hasContributions ? (
         <ContributionsView
           contributions={contributions}
           baseValue={baseValue}
           riskScore={riskScore}
         />
-      ) : (
+      ) : isEvaluated ? (
         <GlobalImportanceView items={items} />
+      ) : (
+        <EmptyStateView />
       )}
     </section>
+  );
+}
+
+function EmptyStateView() {
+  return (
+    <div className="mt-6 flex min-h-[12rem] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-100/50 px-6 py-8 text-center">
+      <p className="text-sm text-slate-500">
+        Run Evaluate to see how each feature impacted the risk score.
+      </p>
+      <p className="mt-1 text-xs text-slate-400">
+        Feature contributions will appear here after evaluation.
+      </p>
+    </div>
   );
 }
 

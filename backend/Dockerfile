@@ -31,6 +31,8 @@ RUN pip install --upgrade pip setuptools wheel \
 ENV MODEL_DIR=/app/models/neuralnet/
 ENV FEATURE_IMPORTANCE_PATH=/app/data/feature_importance_shap.json
 ENV TRAIN_DATA_PATH=/app/data/train.parquet
+# OpenAI (pass OPENAI_API_KEY at runtime for LLM summaries; OPENAI_SUMMARY_MODEL optional)
+ENV OPENAI_SUMMARY_MODEL=gpt-4o-mini
 
 EXPOSE 8000
 CMD ["uvicorn", "fraud_detection.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -22,3 +22,6 @@ FEATURE_IMPORTANCE_PATH = _resolve_path(
 )
 TRAIN_DATA_PATH = _resolve_path("TRAIN_DATA_PATH", "data/train.parquet")
 TEST_DATA_PATH = _resolve_path("TEST_DATA_PATH", "data/test.parquet")
+
+# OpenAI model for summary generation (e.g. gpt-4o-mini, gpt-4o)
+OPENAI_SUMMARY_MODEL = os.environ.get("OPENAI_SUMMARY_MODEL", "gpt-4o-mini")

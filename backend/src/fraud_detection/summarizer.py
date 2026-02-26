@@ -2,6 +2,8 @@
 
 import os
 
+from fraud_detection.config import OPENAI_SUMMARY_MODEL
+
 
 def generate_summary(
     fraud_probability: float,
@@ -32,7 +34,7 @@ Claim features: {feature_list}
 Write a concise summary of the assessment."""
 
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=OPENAI_SUMMARY_MODEL,
             messages=[
                 {
                     "role": "system",
