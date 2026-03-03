@@ -1,5 +1,7 @@
 "use client";
 
+import { formatExplainabilityValue } from "../utils/explainability";
+
 type FeatureImportanceItem = {
   name: string;
   value: number;
@@ -17,6 +19,8 @@ type FeatureImportanceProps = {
   baseValue?: number;
   riskScore?: number;
   isEvaluated?: boolean;
+  compact?: boolean;
+  maxItems?: number;
 };
 
 export default function FeatureImportance({
@@ -25,54 +29,55 @@ export default function FeatureImportance({
   baseValue = 0,
   riskScore,
   isEvaluated = false,
+  compact = false,
+  maxItems = 10,
 }: FeatureImportanceProps) {
-  const hasContributions = contributions && contributions.length > 0;
+  const contributionItems = [...(contributions ?? [])].sort(
+    (a, b) => Math.abs(b.impact) - Math.abs(a.impact)
+  );
+  const visibleContributions = contributionItems.slice(0, maxItems);
+  const hasContributions = visibleContributions.length > 0;
 
   return (
-    <section
-      className={`min-w-0 rounded-2xl border p-6 shadow-sm ${
-        isEvaluated
-          ? "border-slate-200 bg-white"
-          : "border-slate-200 bg-slate-50/80"
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Explainability
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold">
-            {hasContributions
-              ? "How each feature impacted the risk score"
-              : "Why the model decided this"}
-          </h3>
-        </div>
-      </div>
+    <section className={`surface-card ${compact ? "p-4" : "p-5 md:p-6"}`}>
+      <p className="kicker">Explainability</p>
+      <h2
+        className={`mt-2 font-semibold tracking-tight text-zinc-900 ${
+          compact ? "text-xl" : "text-2xl md:text-[1.7rem]"
+        }`}
+      >
+        {compact ? "SHAP-style Effects" : "Feature Effects"}
+      </h2>
+      <p className={`mt-2 ${compact ? "text-xs" : "text-sm"} text-zinc-500`}>
+        {compact
+          ? "Top local effects for this prediction, from baseline to current score."
+          : "Review how each feature increases or decreases risk from the model baseline."}
+      </p>
 
       {isEvaluated && hasContributions ? (
         <ContributionsView
-          contributions={contributions}
+          contributions={visibleContributions}
           baseValue={baseValue}
           riskScore={riskScore}
+          compact={compact}
         />
       ) : isEvaluated ? (
-        <GlobalImportanceView items={items} />
+        <GlobalImportanceView items={items.slice(0, maxItems)} compact={compact} />
       ) : (
-        <EmptyStateView />
+        <EmptyStateView compact={compact} />
       )}
     </section>
   );
 }
 
-function EmptyStateView() {
+function EmptyStateView({ compact }: { compact: boolean }) {
   return (
-    <div className="mt-6 flex min-h-[12rem] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-100/50 px-6 py-8 text-center">
-      <p className="text-sm text-slate-500">
-        Run Evaluate to see how each feature impacted the risk score.
-      </p>
-      <p className="mt-1 text-xs text-slate-400">
-        Feature contributions will appear here after evaluation.
-      </p>
+    <div
+      className={`mt-4 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 text-center text-zinc-500 ${
+        compact ? "px-3 py-4 text-xs" : "px-4 py-6 text-sm"
+      }`}
+    >
+      Run evaluation to view feature impact details.
     </div>
   );
 }
@@ -81,102 +86,154 @@ function ContributionsView({
   contributions,
   baseValue,
   riskScore,
+  compact,
 }: {
   contributions: FeatureContribution[];
   baseValue: number;
   riskScore?: number;
+  compact: boolean;
 }) {
-  const sumImpacts = contributions.reduce((s, c) => s + c.impact, 0);
+  const sumImpacts = contributions.reduce((sum, item) => sum + item.impact, 0);
   const maxAbs = Math.max(
     Math.abs(baseValue),
-    ...contributions.map((c) => Math.abs(c.impact)),
+    ...contributions.map((item) => Math.abs(item.impact)),
     0.01
   );
+  const finalScore = riskScore ?? baseValue + sumImpacts;
+  const baselinePercent = formatPercent(baseValue);
+  const currentPercent = formatPercent(finalScore);
 
   return (
-    <div className="mt-6 space-y-4">
-      <p className="text-sm text-slate-600">
-        Each feature adds or subtracts from the baseline.{" "}
-        <strong>Baseline ({((baseValue ?? 0) * 100).toFixed(1)}%)</strong> +
-        feature impacts = <strong>risk score</strong>.
-      </p>
-      {contributions.map((c) => {
-        const isPositive = c.impact >= 0;
-        const pct = (Math.abs(c.impact) / maxAbs) * 50;
+    <div className="mt-4 space-y-3">
+      <div
+        className={`rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-600 ${
+          compact ? "px-2.5 py-2 text-[11px]" : "px-3 py-2 text-xs"
+        }`}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span>
+            Baseline <strong className="font-semibold text-zinc-700">{baselinePercent}</strong>
+          </span>
+          <span>
+            Current <strong className="font-semibold text-zinc-700">{currentPercent}</strong>
+          </span>
+        </div>
+        <p className="mt-1">
+          Feature effects total {formatPercent(sumImpacts)} from baseline to current.
+        </p>
+      </div>
+
+      {contributions.map((item) => {
+        const isPositive = item.impact >= 0;
+        const widthPercent = (Math.abs(item.impact) / maxAbs) * 50;
+
         return (
-          <div key={c.name} className="space-y-1.5">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-slate-700">
-                {c.name} = {c.value}
-              </span>
+          <article
+            key={item.name}
+            className={`rounded-lg border border-zinc-200 ${compact ? "p-2.5" : "p-3"}`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <h3 className={`${compact ? "text-xs" : "text-sm"} font-medium text-zinc-900`}>
+                {item.name}
+              </h3>
               <span
-                className={
-                  isPositive
-                    ? "font-semibold tabular-nums text-rose-600"
-                    : "font-semibold tabular-nums text-sky-600"
-                }
+                className={`rounded px-2 py-0.5 font-medium ${
+                  compact ? "text-[10px]" : "text-[11px]"
+                } ${isPositive ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}
               >
-                {c.impact >= 0 ? "+" : ""}
-                {(c.impact * 100).toFixed(2)}% {isPositive ? "↑" : "↓"}
+                {isPositive ? "Increases risk" : "Decreases risk"}
               </span>
             </div>
-            <div className="relative flex h-6 items-center">
-              <div className="absolute left-1/2 h-0.5 w-px -translate-x-px bg-slate-300" />
+
+            <p className={`mt-1 ${compact ? "text-[11px]" : "text-xs"} text-zinc-500`}>
+              Value:{" "}
+              <span className="font-mono text-zinc-700">
+                {formatExplainabilityValue(item.name, item.value)}
+              </span>
+            </p>
+
+            <div
+              className={`mt-2 flex items-center justify-between ${
+                compact ? "text-[11px]" : "text-xs"
+              } text-zinc-500`}
+            >
+              <span>Impact</span>
+              <span className="font-mono text-zinc-800">
+                {item.impact >= 0 ? "+" : ""}
+                {formatPercent(item.impact)}
+              </span>
+            </div>
+
+            <div
+              className={`relative mt-1.5 rounded-full bg-zinc-100 ${
+                compact ? "h-3.5" : "h-4"
+              }`}
+            >
               <div
-                className={`absolute top-1/2 h-4 -translate-y-1/2 rounded ${
-                  isPositive ? "left-1/2 bg-rose-500" : "right-1/2 bg-sky-500"
+                className="absolute left-1/2 top-0 h-full w-px -translate-x-px bg-zinc-400"
+                aria-hidden="true"
+              />
+              <div
+                className={`absolute top-[2px] h-[calc(100%-4px)] ${
+                  isPositive ? "left-1/2 bg-red-500" : "right-1/2 bg-emerald-500"
                 }`}
                 style={{
-                  width: `${pct}%`,
-                  ...(isPositive ? { left: "50%" } : { right: "50%" }),
+                  width: `max(${widthPercent}%, 8px)`,
+                  borderTopLeftRadius: isPositive ? 0 : 9999,
+                  borderBottomLeftRadius: isPositive ? 0 : 9999,
+                  borderTopRightRadius: isPositive ? 9999 : 0,
+                  borderBottomRightRadius: isPositive ? 9999 : 0,
                 }}
+                aria-label={`${item.name} impact ${formatPercent(item.impact)}`}
               />
             </div>
-          </div>
+          </article>
         );
       })}
-      {riskScore !== undefined && (
-        <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3">
-          <p className="text-sm font-medium text-slate-700">
-            {(baseValue * 100).toFixed(2)}% baseline + {(sumImpacts * 100).toFixed(2)}%
-            (from features) ={" "}
-            <strong className="text-indigo-700">
-              {(riskScore * 100).toFixed(2)}% risk score
-            </strong>
-          </p>
-        </div>
-      )}
-      <p className="mt-2 text-xs text-slate-500">
-        Positive (red) adds to the risk score; negative (blue) subtracts from it.
-      </p>
     </div>
   );
 }
 
 function GlobalImportanceView({
   items,
+  compact,
 }: {
   items: FeatureImportanceItem[];
+  compact: boolean;
 }) {
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-4 space-y-2.5">
+      <p className={`${compact ? "text-xs" : "text-sm"} text-zinc-500`}>
+        Case-level effects are unavailable. Showing global feature importance.
+      </p>
+
       {items.map((item) => (
-        <div key={item.name} className="space-y-2">
-          <div className="flex items-center justify-between text-sm font-medium">
-            <span>{item.name}</span>
-            <span className="text-slate-400">
+        <article
+          key={item.name}
+          className={`rounded-lg border border-zinc-200 ${compact ? "p-2.5" : "p-3"}`}
+        >
+          <div className="flex items-center justify-between gap-2 text-sm">
+            <h3 className={`${compact ? "text-xs" : "text-sm"} font-medium text-zinc-900`}>
+              {item.name}
+            </h3>
+            <span className="font-mono text-xs text-zinc-500">
               {(item.value * 100).toFixed(0)}%
             </span>
           </div>
-          <div className="h-3 rounded-full bg-slate-100">
+
+          <div className={`mt-2 rounded-full bg-zinc-100 ${compact ? "h-1.5" : "h-2"}`}>
             <div
-              className="h-3 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-400"
+              className={`rounded-full bg-zinc-900 ${compact ? "h-1.5" : "h-2"}`}
               style={{ width: `${item.value * 100}%` }}
-              aria-label={`${item.name} importance`}
+              aria-label={`${item.name} importance ${Math.round(item.value * 100)} percent`}
             />
           </div>
-        </div>
+        </article>
       ))}
     </div>
   );
+}
+
+function formatPercent(value: number) {
+  return `${(value * 100).toFixed(2)}%`;
 }

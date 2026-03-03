@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getFeatureImportance,
   predict,
@@ -12,7 +12,6 @@ import FeaturePanel, { Feature } from "./ui/FeaturePanel";
 import StatusSummary from "./ui/StatusSummary";
 import SummaryPanel from "./ui/SummaryPanel";
 
-// Top 10 by SHAP importance (claim_date excluded, then next feature included)
 const TOP_FEATURE_IDS = [
   "annual_income",
   "age_of_driver",
@@ -50,26 +49,29 @@ const allFeatures: Feature[] = [
     label: "Claim day of week",
     type: "select",
     options: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
+      { label: "Monday", value: "Monday" },
+      { label: "Tuesday", value: "Tuesday" },
+      { label: "Wednesday", value: "Wednesday" },
+      { label: "Thursday", value: "Thursday" },
+      { label: "Friday", value: "Friday" },
+      { label: "Saturday", value: "Saturday" },
+      { label: "Sunday", value: "Sunday" },
     ],
     defaultValue: "Monday",
   },
   {
     id: "high_education_ind",
-    label: "High education",
+    label: "Higher education",
     type: "select",
-    options: ["0", "1"],
+    options: [
+      { label: "No", value: "0" },
+      { label: "Yes", value: "1" },
+    ],
     defaultValue: "1",
   },
   {
     id: "past_num_of_claims",
-    label: "Past number of claims",
+    label: "Past claims",
     type: "number",
     defaultValue: 0,
     min: 0,
@@ -89,14 +91,20 @@ const allFeatures: Feature[] = [
     id: "witness_present_ind",
     label: "Witness present",
     type: "select",
-    options: ["0", "1"],
+    options: [
+      { label: "No", value: "0" },
+      { label: "Yes", value: "1" },
+    ],
     defaultValue: "0",
   },
   {
     id: "gender",
-    label: "Gender",
+    label: "Driver gender",
     type: "select",
-    options: ["F", "M"],
+    options: [
+      { label: "Female", value: "F" },
+      { label: "Male", value: "M" },
+    ],
     defaultValue: "M",
   },
   {
@@ -112,32 +120,44 @@ const allFeatures: Feature[] = [
     id: "living_status",
     label: "Living status",
     type: "select",
-    options: ["Own", "Rent"],
+    options: [
+      { label: "Own", value: "Own" },
+      { label: "Rent", value: "Rent" },
+    ],
     defaultValue: "Own",
   },
 ];
 
 const featuresOrdered = TOP_FEATURE_IDS.flatMap((id) =>
-  allFeatures.filter((f) => f.id === id)
+  allFeatures.filter((feature) => feature.id === id)
 );
 
 const DEFAULT_VALUES: Record<string, string | number> = Object.fromEntries(
-  allFeatures.map((f) => [f.id, f.defaultValue])
+  allFeatures.map((feature) => [feature.id, feature.defaultValue])
 );
 
-// Fallback when /feature-importance API not available (matches reduced model SHAP)
 const DEFAULT_FEATURE_IMPORTANCE = [
   { name: "Annual income", value: 1 },
   { name: "Age of driver", value: 0.91 },
   { name: "Claim day of week", value: 0.61 },
-  { name: "High education", value: 0.18 },
-  { name: "Past number of claims", value: 0.14 },
+  { name: "Higher education", value: 0.18 },
+  { name: "Past claims", value: 0.14 },
   { name: "Safety rating", value: 0.12 },
   { name: "Witness present", value: 0.12 },
-  { name: "Gender", value: 0.11 },
+  { name: "Driver gender", value: 0.11 },
   { name: "Claim estimated payout", value: 0.1 },
   { name: "Living status", value: 0.1 },
 ];
+
+const threshold = 0.65;
+
+type PredictionState = {
+  riskScore: number;
+  status: string;
+  summary: string;
+  featureContributions: { name: string; value: string; impact: number }[];
+  shapBaseValue: number;
+};
 
 const getNumberValue = (value: string | number) => {
   if (value === "") {
@@ -146,14 +166,13 @@ const getNumberValue = (value: string | number) => {
   return Number(value);
 };
 
-const threshold = 0.65;
-
 function buildPayload(
   featureValues: Record<string, string | number>
 ): PredictionRequest {
   const merged = { ...DEFAULT_VALUES, ...featureValues };
   const num = (id: string) => getNumberValue(merged[id] ?? 0);
   const str = (id: string) => String(merged[id] ?? "");
+
   return {
     annual_income: num("annual_income"),
     age_of_driver: num("age_of_driver"),
@@ -169,25 +188,10 @@ function buildPayload(
 }
 
 export default function Home() {
-  useEffect(() => {
-    getFeatureImportance().then((data) => {
-      if (data.length > 0) {
-        setFeatureImportance(data);
-      }
-    });
-  }, []);
-
   const [featureValues, setFeatureValues] = useState(() => ({
     ...DEFAULT_VALUES,
   }));
-
-  const [prediction, setPrediction] = useState<{
-    riskScore: number;
-    status: string;
-    summary: string;
-    featureContributions: { name: string; value: string; impact: number }[];
-    shapBaseValue: number;
-  } | null>(null);
+  const [prediction, setPrediction] = useState<PredictionState | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [featureImportance, setFeatureImportance] = useState(
@@ -196,36 +200,71 @@ export default function Home() {
   const [resultKey, setResultKey] = useState(0);
   const lastEvaluatedPayloadRef = useRef<string | null>(null);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    getFeatureImportance()
+      .then((data) => {
+        if (isMounted && data.length > 0) {
+          setFeatureImportance(data);
+        }
+      })
+      .catch(() => {
+        // Keep fallback values when endpoint is unavailable.
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const currentPayloadKey = useMemo(
+    () => JSON.stringify(buildPayload(featureValues)),
+    [featureValues]
+  );
+
+  const canEvaluate = lastEvaluatedPayloadRef.current !== currentPayloadKey;
+
   const updateFeatureValue = (id: string, value: string | number) => {
     setFeatureValues((prev) => ({ ...prev, [id]: value }));
     setPrediction(null);
+    setError(null);
+  };
+
+  const resetInputs = () => {
+    setFeatureValues({ ...DEFAULT_VALUES });
+    setPrediction(null);
+    setError(null);
     lastEvaluatedPayloadRef.current = null;
   };
 
   const handleEvaluate = async () => {
-    const payload = buildPayload(featureValues);
-    const payloadKey = JSON.stringify(payload);
-    if (lastEvaluatedPayloadRef.current === payloadKey) {
+    if (!canEvaluate) {
       return;
     }
 
+    const payload = buildPayload(featureValues);
+    const payloadKey = JSON.stringify(payload);
+
     setIsEvaluating(true);
     setError(null);
+
     try {
-      const res = await predict(payload);
+      const response = await predict(payload);
       lastEvaluatedPayloadRef.current = payloadKey;
-      const riskScore = res.fraud_probability;
-      const status = res.is_fraud ? "Status: Fraud Likely" : "Status: Low Risk";
+      const status = response.is_fraud ? "Fraud likely" : "Low risk";
       setPrediction({
-        riskScore,
+        riskScore: response.fraud_probability,
         status,
-        summary: res.summary,
-        featureContributions: res.feature_contributions ?? [],
-        shapBaseValue: res.shap_base_value ?? 0,
+        summary: response.summary,
+        featureContributions: response.feature_contributions ?? [],
+        shapBaseValue: response.shap_base_value ?? 0,
       });
-      setResultKey((k) => k + 1);
-    } catch (err) {
-      setError("Prediction failed. Is the backend running?");
+      setResultKey((key) => key + 1);
+    } catch {
+      setError(
+        "Prediction failed. Confirm the backend is running on http://localhost:8000 and try again."
+      );
       setPrediction(null);
     } finally {
       setIsEvaluating(false);
@@ -233,61 +272,91 @@ export default function Home() {
   };
 
   const riskScore = prediction?.riskScore ?? 0;
-  const status = prediction?.status ?? "Status: Not yet evaluated";
+  const status = prediction?.status ?? "Awaiting evaluation";
   const summary =
     prediction?.summary ??
-    "Adjust the claim features and click Evaluate to run the fraud prediction model.";
-
-  const isLowRisk = riskScore < threshold;
-  const backgroundImage =
-    prediction === null
-      ? "radial-gradient(circle at top left, rgba(148, 163, 184, 0.25), transparent 45%), radial-gradient(circle at 30% 20%, rgba(226, 232, 240, 0.8), transparent 55%), radial-gradient(circle at 90% 10%, rgba(199, 210, 254, 0.35), transparent 45%)"
-      : isLowRisk
-        ? "radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 45%), radial-gradient(circle at 30% 20%, rgba(167, 243, 208, 0.5), transparent 55%), radial-gradient(circle at 90% 10%, rgba(209, 250, 229, 0.6), transparent 45%)"
-        : "radial-gradient(circle at top left, rgba(248, 113, 113, 0.2), transparent 45%), radial-gradient(circle at 30% 20%, rgba(254, 202, 202, 0.55), transparent 55%), radial-gradient(circle at 90% 10%, rgba(253, 164, 175, 0.45), transparent 45%)";
+    "Set claim inputs and run evaluation to see risk level and feature-level explanation.";
 
   return (
-    <div
-      className="min-h-screen bg-slate-50 text-slate-900"
-      style={{ backgroundImage }}
-    >
-      <div className="mx-auto flex min-h-screen w-full max-w-[85rem] flex-col gap-8 px-8 py-10 md:flex-row">
-        <FeaturePanel
-          features={featuresOrdered}
-          featureValues={featureValues}
-          onFeatureChange={updateFeatureValue}
-          onEvaluate={handleEvaluate}
-          isEvaluating={isEvaluating}
-        />
+    <div className="min-h-screen">
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
 
-        <main className="min-w-0 flex-1">
-          <div className="space-y-8 md:sticky md:top-8 md:self-start">
+      <main className="mx-auto w-full max-w-7xl px-5 py-8 md:px-8 md:py-10">
+        <header className="surface-card p-6 md:p-7">
+          <p className="kicker">Fraud Detection</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-900 md:text-4xl">
+            Fraud Signal Navigator
+          </h1>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-500 md:text-base">
+            Light, minimal claim-scoring workspace with many parameters and a
+            compact decision panel.
+          </p>
+          <div className="mt-4 h-px bg-zinc-200" />
+        </header>
+
+        <section className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
+          <FeaturePanel
+            features={featuresOrdered}
+            featureValues={featureValues}
+            onFeatureChange={updateFeatureValue}
+            onEvaluate={handleEvaluate}
+            onReset={resetInputs}
+            canEvaluate={canEvaluate}
+            hasPrediction={prediction !== null}
+            isEvaluating={isEvaluating}
+          />
+
+          <aside
+            id="main-content"
+            className="min-w-0 space-y-5 xl:sticky xl:top-6"
+            aria-live="polite"
+          >
             {error && (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-sm text-rose-700">
-                {error}
+              <div
+                role="alert"
+                className="surface-card border-red-200 bg-red-50 px-4 py-3"
+              >
+                <p className="text-sm font-medium text-red-700">{error}</p>
               </div>
             )}
+
             <div
               key={prediction ? resultKey : "initial"}
-              className={prediction ? "animate-fade-slide-in space-y-8" : "space-y-8"}
+              className={prediction ? "result-entrance" : ""}
             >
               <StatusSummary
                 status={status}
                 score={riskScore}
                 threshold={threshold}
-              />
-              <SummaryPanel summary={summary} />
-              <FeatureImportance
-                items={featureImportance}
-                contributions={prediction?.featureContributions}
-                baseValue={prediction?.shapBaseValue}
-                riskScore={prediction?.riskScore}
                 isEvaluated={prediction !== null}
+                isEvaluating={isEvaluating}
               />
             </div>
-          </div>
-        </main>
-      </div>
+
+            <FeatureImportance
+              items={featureImportance}
+              contributions={prediction?.featureContributions}
+              baseValue={prediction?.shapBaseValue}
+              riskScore={prediction?.riskScore}
+              isEvaluated={prediction !== null}
+              compact
+              maxItems={6}
+            />
+          </aside>
+        </section>
+
+        <section className="mt-6">
+          <SummaryPanel
+            summary={summary}
+            isEvaluated={prediction !== null}
+            riskScore={prediction?.riskScore}
+            contributions={prediction?.featureContributions}
+            globalItems={featureImportance}
+          />
+        </section>
+      </main>
     </div>
   );
 }

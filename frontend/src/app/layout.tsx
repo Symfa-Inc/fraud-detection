@@ -1,20 +1,9 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Fraud Detection",
-  description: "Insurance claim fraud detection",
+  title: "Fraud Signal Navigator",
+  description: "Insurance claim fraud risk evaluation and explainability",
   icons: {
     icon: "/icon.png",
   },
@@ -27,9 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${manrope.variable} ${jetbrainsMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         {children}
       </body>
     </html>
