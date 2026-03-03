@@ -108,7 +108,7 @@ export default function FeaturePanel({
   isEvaluating = false,
 }: FeaturePanelProps) {
   const featuresById = new Map(
-    features.map((feature) => [feature.id, feature])
+    features.map((feature) => [feature.id, feature]),
   );
   const formRef = useRef<HTMLFormElement>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -120,7 +120,7 @@ export default function FeaturePanel({
 
     const handler = (e: WheelEvent) => {
       const input = (e.target as HTMLElement).closest(
-        'input[type="number"]'
+        'input[type="number"]',
       ) as HTMLInputElement | null;
       if (!input) return;
       e.preventDefault();
@@ -138,8 +138,8 @@ export default function FeaturePanel({
         max,
         Math.max(
           min,
-          parseFloat((current + direction * step).toFixed(decimals))
-        )
+          parseFloat((current + direction * step).toFixed(decimals)),
+        ),
       );
 
       onFeatureChange(field, next);
@@ -213,7 +213,7 @@ export default function FeaturePanel({
                       onFeatureChange(feature.id, nextValue)
                     }
                   />
-                )
+                ),
               )}
           </div>
         </div>
@@ -267,11 +267,11 @@ function FeatureField({
       typeof value === "number"
         ? value
         : value === ""
-          ? feature.min ?? 0
+          ? (feature.min ?? 0)
           : Number(value);
     const safeValue = Number.isFinite(numericValue)
       ? numericValue
-      : feature.min ?? 0;
+      : (feature.min ?? 0);
 
     return (
       <label className="field">
@@ -289,7 +289,9 @@ function FeatureField({
           step={feature.step ?? 1}
           value={safeValue}
           onChange={(event) =>
-            onChange(event.target.value === "" ? "" : Number(event.target.value))
+            onChange(
+              event.target.value === "" ? "" : Number(event.target.value),
+            )
           }
         />
       </label>
@@ -297,7 +299,7 @@ function FeatureField({
   }
 
   const options = feature.options.map((option) =>
-    typeof option === "string" ? { label: option, value: option } : option
+    typeof option === "string" ? { label: option, value: option } : option,
   );
 
   return (

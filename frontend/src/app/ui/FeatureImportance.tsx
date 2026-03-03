@@ -32,7 +32,7 @@ export default function FeatureImportance({
   maxItems = 10,
 }: FeatureImportanceProps) {
   const contributionItems = [...(contributions ?? [])].sort(
-    (a, b) => Math.abs(b.impact) - Math.abs(a.impact)
+    (a, b) => Math.abs(b.impact) - Math.abs(a.impact),
   );
   const visibleContributions = contributionItems.slice(0, maxItems);
   const hasContributions = visibleContributions.length > 0;
@@ -68,7 +68,7 @@ function WaterfallView({
   const maxAbs = Math.max(
     Math.abs(deltaToFinal),
     ...contributions.map((item) => Math.abs(item.impact)),
-    0.001
+    0.001,
   );
   const axisHalfWidth = 40;
   const baselinePos = 50;
@@ -76,15 +76,11 @@ function WaterfallView({
   const segments = contributions.map((item, index) => {
     const width = Math.max(
       (Math.abs(item.impact) / maxAbs) * axisHalfWidth,
-      1.2
+      1.2,
     );
     const left = item.impact >= 0 ? baselinePos : baselinePos - width;
     const direction =
-      item.impact > 0
-        ? "increase"
-        : item.impact < 0
-          ? "decrease"
-          : "neutral";
+      item.impact > 0 ? "increase" : item.impact < 0 ? "decrease" : "neutral";
 
     return { ...item, key: `${item.name}-${index}`, left, width, direction };
   });
@@ -137,8 +133,7 @@ function WaterfallView({
             </div>
 
             <div className="waterfall-values">
-              value{" "}
-              {formatExplainabilityValue(segment.name, segment.value)}
+              value {formatExplainabilityValue(segment.name, segment.value)}
             </div>
           </li>
         ))}
@@ -147,11 +142,7 @@ function WaterfallView({
   );
 }
 
-function GlobalImportanceView({
-  items,
-}: {
-  items: FeatureImportanceItem[];
-}) {
+function GlobalImportanceView({ items }: { items: FeatureImportanceItem[] }) {
   return (
     <section className="explanation-block">
       <div className="explanation-head">

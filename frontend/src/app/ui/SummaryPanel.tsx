@@ -50,29 +50,29 @@ export default function SummaryPanel({
   const topOverallLines = hasLocal
     ? topOverallLocal.map(
         (item) =>
-          `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`
+          `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`,
       )
     : topGlobal.map(
-        (item) => `${item.name}: ${(item.value * 100).toFixed(1)}% importance`
+        (item) => `${item.name}: ${(item.value * 100).toFixed(1)}% importance`,
       );
 
   const riskDriverLines = hasLocal
     ? riskDrivers.length > 0
       ? riskDrivers.map(
           (item) =>
-            `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`
+            `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`,
         )
       : ["No strong upward pressure on risk in this profile."]
     : topGlobal.map(
         (item) =>
-          `${item.name} · ${(item.value * 100).toFixed(1)}% global importance`
+          `${item.name} · ${(item.value * 100).toFixed(1)}% global importance`,
       );
 
   const protectiveLines = hasLocal
     ? protectiveSignals.length > 0
       ? protectiveSignals.map(
           (item) =>
-            `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`
+            `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`,
         )
       : ["No strong protective signals in this profile."]
     : ["Protective signals require local contribution output."];
@@ -80,7 +80,7 @@ export default function SummaryPanel({
   const leadName =
     hasLocal && topOverallLocal.length > 0
       ? topOverallLocal[0].name
-      : topGlobal[0]?.name ?? "model factors";
+      : (topGlobal[0]?.name ?? "model factors");
 
   const headline = hasLocal
     ? `Top local driver: ${leadName}`
@@ -177,10 +177,7 @@ function formatScorePercent(value: number) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-function formatSummaryProbabilities(
-  text: string,
-  riskScore?: number
-): string {
+function formatSummaryProbabilities(text: string, riskScore?: number): string {
   return text.replace(/\b0?\.\d+\b/g, (match, offset, fullText) => {
     const numeric = Number(match);
     if (!Number.isFinite(numeric) || numeric < 0 || numeric > 1) {

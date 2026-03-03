@@ -129,11 +129,11 @@ const allFeatures: Feature[] = [
 ];
 
 const featuresOrdered = TOP_FEATURE_IDS.flatMap((id) =>
-  allFeatures.filter((feature) => feature.id === id)
+  allFeatures.filter((feature) => feature.id === id),
 );
 
 const DEFAULT_VALUES: Record<string, string | number> = Object.fromEntries(
-  allFeatures.map((feature) => [feature.id, feature.defaultValue])
+  allFeatures.map((feature) => [feature.id, feature.defaultValue]),
 );
 
 const DEFAULT_FEATURE_IMPORTANCE = [
@@ -167,7 +167,7 @@ const getNumberValue = (value: string | number) => {
 };
 
 function buildPayload(
-  featureValues: Record<string, string | number>
+  featureValues: Record<string, string | number>,
 ): PredictionRequest {
   const merged = { ...DEFAULT_VALUES, ...featureValues };
   const num = (id: string) => getNumberValue(merged[id] ?? 0);
@@ -215,7 +215,7 @@ export default function Home() {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [featureImportance, setFeatureImportance] = useState(
-    DEFAULT_FEATURE_IMPORTANCE
+    DEFAULT_FEATURE_IMPORTANCE,
   );
   const [resultKey, setResultKey] = useState(0);
   const lastEvaluatedPayloadRef = useRef<string | null>(null);
@@ -240,7 +240,7 @@ export default function Home() {
 
   const currentPayloadKey = useMemo(
     () => JSON.stringify(buildPayload(featureValues)),
-    [featureValues]
+    [featureValues],
   );
 
   const canEvaluate = lastEvaluatedPayloadRef.current !== currentPayloadKey;
@@ -283,7 +283,7 @@ export default function Home() {
       setResultKey((key) => key + 1);
     } catch {
       setError(
-        "Prediction failed. Confirm the backend is running on http://localhost:8000 and try again."
+        "Prediction failed. Confirm the backend is running on http://localhost:8000 and try again.",
       );
       setPrediction(null);
     } finally {
@@ -304,8 +304,8 @@ export default function Home() {
         <h1>Fraud Signal Navigator</h1>
         <p className="header-sub">
           Evaluate insurance claim fraud risk using machine learning. Review
-          feature-level SHAP explanations to understand which factors increase or
-          decrease the predicted fraud probability.
+          feature-level SHAP explanations to understand which factors increase
+          or decrease the predicted fraud probability.
         </p>
       </header>
 

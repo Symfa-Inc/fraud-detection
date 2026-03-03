@@ -17,7 +17,7 @@ export default function StatusSummary({
   const scorePercent = Math.max(0, Math.min(100, Math.round(score * 100)));
   const thresholdPercent = Math.max(
     0,
-    Math.min(100, Math.round(threshold * 100))
+    Math.min(100, Math.round(threshold * 100)),
   );
   const isLowRisk = score < threshold;
   const tier = isLowRisk ? "low" : "high";
