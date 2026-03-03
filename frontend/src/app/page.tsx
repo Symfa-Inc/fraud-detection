@@ -8,7 +8,7 @@ import {
 } from "./utils/api";
 
 import FeatureImportance from "./ui/FeatureImportance";
-import FeaturePanel, { Feature } from "./ui/FeaturePanel";
+import FeaturePanel, { type Feature } from "./ui/FeaturePanel";
 import StatusSummary from "./ui/StatusSummary";
 import SummaryPanel from "./ui/SummaryPanel";
 
@@ -187,6 +187,26 @@ function buildPayload(
   };
 }
 
+function InfoTooltip({ label, text }: { label: string; text: string }) {
+  return (
+    <button type="button" className="effects-info" aria-label={label}>
+      <svg
+        className="effects-info-icon"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 4.75a.75.75 0 10-1.5 0v.5a.75.75 0 001.5 0v-.5zm0 3.5a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0v-3z"
+          clipRule="evenodd"
+        />
+      </svg>
+      <span className="effects-tooltip">{text}</span>
+    </button>
+  );
+}
+
 export default function Home() {
   const [featureValues, setFeatureValues] = useState(() => ({
     ...DEFAULT_VALUES,
@@ -278,85 +298,83 @@ export default function Home() {
     "Set claim inputs and run evaluation to see risk level and feature-level explanation.";
 
   return (
-    <div className="min-h-screen">
-      <a className="skip-link" href="#main-content">
-        Skip to main content
-      </a>
+    <main className="page-shell">
+      <header className="site-header">
+        <span className="header-tag">Insurance · Fraud Detection</span>
+        <h1>Fraud Signal Navigator</h1>
+        <p className="header-sub">
+          Evaluate insurance claim fraud risk using machine learning. Review
+          feature-level SHAP explanations to understand which factors increase or
+          decrease the predicted fraud probability.
+        </p>
+      </header>
 
-      <main className="mx-auto w-full max-w-7xl px-5 py-8 md:px-8 md:py-10">
-        <header className="surface-card p-6 md:p-7">
-          <p className="kicker">Fraud Detection</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-900 md:text-4xl">
-            Fraud Signal Navigator
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-500 md:text-base">
-            Light, minimal claim-scoring workspace with many parameters and a
-            compact decision panel.
-          </p>
-          <div className="mt-4 h-px bg-zinc-200" />
-        </header>
+      <div className="content-grid">
+        <FeaturePanel
+          features={featuresOrdered}
+          featureValues={featureValues}
+          onFeatureChange={updateFeatureValue}
+          onEvaluate={handleEvaluate}
+          onReset={resetInputs}
+          canEvaluate={canEvaluate}
+          hasPrediction={prediction !== null}
+          isEvaluating={isEvaluating}
+        />
 
-        <section className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
-          <FeaturePanel
-            features={featuresOrdered}
-            featureValues={featureValues}
-            onFeatureChange={updateFeatureValue}
-            onEvaluate={handleEvaluate}
-            onReset={resetInputs}
-            canEvaluate={canEvaluate}
-            hasPrediction={prediction !== null}
-            isEvaluating={isEvaluating}
-          />
+        <div className="result-panel" aria-live="polite">
+          <div className="result-heading">
+            <span className="result-heading-main">
+              Risk Assessment
+              <InfoTooltip
+                label="About Risk Assessment"
+                text="Risk Assessment shows the model's fraud probability for the current claim profile. Scores above the threshold indicate likely fraud."
+              />
+            </span>
+          </div>
 
-          <aside
-            id="main-content"
-            className="min-w-0 space-y-5 xl:sticky xl:top-6"
-            aria-live="polite"
-          >
-            {error && (
-              <div
-                role="alert"
-                className="surface-card border-red-200 bg-red-50 px-4 py-3"
-              >
-                <p className="text-sm font-medium text-red-700">{error}</p>
-              </div>
-            )}
+          {error && (
+            <div className="error-bar" role="alert">
+              {error}
+            </div>
+          )}
 
-            <div
-              key={prediction ? resultKey : "initial"}
-              className={prediction ? "result-entrance" : ""}
-            >
+          {prediction ? (
+            <div key={resultKey} className="result-entrance">
               <StatusSummary
                 status={status}
                 score={riskScore}
                 threshold={threshold}
-                isEvaluated={prediction !== null}
-                isEvaluating={isEvaluating}
+                isEvaluated
+                isEvaluating={false}
+              />
+
+              <FeatureImportance
+                items={featureImportance}
+                contributions={prediction.featureContributions}
+                baseValue={prediction.shapBaseValue}
+                riskScore={prediction.riskScore}
+                isEvaluated
+                maxItems={6}
               />
             </div>
+          ) : (
+            <div className="result-empty">
+              <div className="pulse-ring" />
+              <span>Enter claim data and run evaluation</span>
+            </div>
+          )}
+        </div>
+      </div>
 
-            <FeatureImportance
-              items={featureImportance}
-              contributions={prediction?.featureContributions}
-              baseValue={prediction?.shapBaseValue}
-              riskScore={prediction?.riskScore}
-              isEvaluated={prediction !== null}
-              compact
-              maxItems={6}
-            />
-          </aside>
-        </section>
-
-        <section className="mt-6">
-          <SummaryPanel
-            summary={summary}
-            isEvaluated={prediction !== null}
-            riskScore={prediction?.riskScore}
-            contributions={prediction?.featureContributions}
-            globalItems={featureImportance}
-          />
-        </section>
-      </main>
-    </div>
+      {prediction && (
+        <SummaryPanel
+          summary={summary}
+          isEvaluated
+          riskScore={prediction.riskScore}
+          contributions={prediction.featureContributions}
+          globalItems={featureImportance}
+        />
+      )}
+    </main>
   );
 }

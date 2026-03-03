@@ -34,7 +34,9 @@ export default function SummaryPanel({
   const topOverallLocal = [...local]
     .sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact))
     .slice(0, 3);
-  const topGlobal = [...globalItems].sort((a, b) => b.value - a.value).slice(0, 3);
+  const topGlobal = [...globalItems]
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3);
 
   const riskDrivers = [...local]
     .filter((item) => item.impact > 0)
@@ -48,28 +50,29 @@ export default function SummaryPanel({
   const topOverallLines = hasLocal
     ? topOverallLocal.map(
         (item) =>
-          `${item.name} (${formatExplainabilityValue(item.name, item.value)}) · ${formatImpact(item.impact)} impact`
+          `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`
       )
     : topGlobal.map(
-        (item) => `${item.name} · ${(item.value * 100).toFixed(1)}% importance`
+        (item) => `${item.name}: ${(item.value * 100).toFixed(1)}% importance`
       );
 
   const riskDriverLines = hasLocal
     ? riskDrivers.length > 0
       ? riskDrivers.map(
           (item) =>
-            `${item.name} (${formatExplainabilityValue(item.name, item.value)}) · ${formatImpact(item.impact)} impact`
+            `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`
         )
       : ["No strong upward pressure on risk in this profile."]
     : topGlobal.map(
-        (item) => `${item.name} · ${(item.value * 100).toFixed(1)}% global importance`
+        (item) =>
+          `${item.name} · ${(item.value * 100).toFixed(1)}% global importance`
       );
 
   const protectiveLines = hasLocal
     ? protectiveSignals.length > 0
       ? protectiveSignals.map(
           (item) =>
-            `${item.name} (${formatExplainabilityValue(item.name, item.value)}) · ${formatImpact(item.impact)} impact`
+            `${item.name} (${formatExplainabilityValue(item.name, item.value)}): ${formatImpact(item.impact)} impact`
         )
       : ["No strong protective signals in this profile."]
     : ["Protective signals require local contribution output."];
@@ -86,51 +89,58 @@ export default function SummaryPanel({
   const renderedSummary = formatSummaryProbabilities(summary, riskScore);
 
   return (
-    <section className="surface-card p-5 md:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="kicker">Explainability</p>
+    <section className="summary-panel">
+      <div className="summary-card-head">
+        <span className="summary-card-title">
+          Executive Summary
+          <InfoTooltip
+            label="About Executive Summary"
+            text="A structured summary of the claim's risk profile, key risk drivers, protective factors, and top overall contributors."
+          />
+        </span>
         <span
-          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${
-            hasLocal
-              ? "border-blue-200 bg-blue-50 text-blue-700"
-              : "border-zinc-200 bg-zinc-100 text-zinc-600"
-          }`}
+          className={`summary-source summary-source-${hasLocal ? "openai" : "fallback"}`}
         >
           {sourceLabel}
         </span>
       </div>
 
-      <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 md:text-[1.7rem]">
-        Explainability Summary
-      </h2>
-
       {!isEvaluated ? (
-        <div className="mt-4 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
+        <div className="summary-empty">
           Run evaluation to populate explainability groups.
         </div>
       ) : (
         <>
-          <p className="mt-3 text-sm font-medium text-zinc-800">{headline}</p>
-          <p className="mt-1.5 text-sm leading-relaxed text-zinc-600">
-            {renderedSummary}
-          </p>
+          <p className="summary-headline">{headline}</p>
+          <p className="summary-text">{renderedSummary}</p>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
-            <ExplainabilityGroup
-              title="Risk Drivers"
-              tone="risk"
-              lines={riskDriverLines}
-            />
-            <ExplainabilityGroup
-              title="Protective Signals"
-              tone="protective"
-              lines={protectiveLines}
-            />
-            <ExplainabilityGroup
-              title="Top 3 Overall"
-              tone="neutral"
-              lines={topOverallLines}
-            />
+          <div className="summary-columns">
+            <div className="summary-group">
+              <h3>Risk Drivers</h3>
+              <ul>
+                {riskDriverLines.map((line, index) => (
+                  <li key={`risk-${index}`}>{line}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="summary-group">
+              <h3>Protective Signals</h3>
+              <ul>
+                {protectiveLines.map((line, index) => (
+                  <li key={`protect-${index}`}>{line}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="summary-group">
+              <h3>Top 3 Overall</h3>
+              <ul>
+                {topOverallLines.map((line, index) => (
+                  <li key={`top-${index}`}>{line}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </>
       )}
@@ -138,37 +148,23 @@ export default function SummaryPanel({
   );
 }
 
-function ExplainabilityGroup({
-  title,
-  lines,
-  tone,
-}: {
-  title: string;
-  lines: string[];
-  tone: "risk" | "protective" | "neutral";
-}) {
+function InfoTooltip({ label, text }: { label: string; text: string }) {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3.5">
-      <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-500">
-        {title}
-      </h3>
-      <ul className="mt-2 space-y-2">
-        {lines.map((line, index) => (
-          <li
-            key={`${title}-${index}`}
-            className={`rounded-md border px-2.5 py-2 text-xs leading-relaxed ${
-              tone === "risk"
-                ? "border-red-200 bg-red-50/70 text-red-800"
-                : tone === "protective"
-                  ? "border-blue-200 bg-blue-50/70 text-blue-800"
-                  : "border-zinc-200 bg-white text-zinc-700"
-            }`}
-          >
-            {line}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <button type="button" className="effects-info" aria-label={label}>
+      <svg
+        className="effects-info-icon"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 4.75a.75.75 0 10-1.5 0v.5a.75.75 0 001.5 0v-.5zm0 3.5a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0v-3z"
+          clipRule="evenodd"
+        />
+      </svg>
+      <span className="effects-tooltip">{text}</span>
+    </button>
   );
 }
 

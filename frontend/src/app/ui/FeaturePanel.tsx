@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 type NumericFeature = {
   id: string;
   label: string;
@@ -88,9 +90,12 @@ const FEATURE_HINTS: Record<string, string> = {
   witness_present_ind:
     "Whether an independent witness was present at the incident.",
   annual_income: "Estimated annual income in USD. Range: 25,000 to 60,000.",
-  past_num_of_claims: "Number of prior claims linked to the driver. Range: 0 to 20.",
+  past_num_of_claims:
+    "Number of prior claims linked to the driver. Range: 0 to 20.",
   safty_rating: "Internal safety score used by the model. Range: 0 to 100.",
 };
+
+const BINARY_FEATURES = new Set(["high_education_ind", "witness_present_ind"]);
 
 export default function FeaturePanel({
   features,
@@ -102,34 +107,99 @@ export default function FeaturePanel({
   hasPrediction = false,
   isEvaluating = false,
 }: FeaturePanelProps) {
-  const featuresById = new Map(features.map((feature) => [feature.id, feature]));
+  const featuresById = new Map(
+    features.map((feature) => [feature.id, feature])
+  );
+  const formRef = useRef<HTMLFormElement>(null);
+  const [elapsed, setElapsed] = useState(0);
+
+  /* Scroll wheel adjusts number inputs without scrolling the page */
+  useEffect(() => {
+    const el = formRef.current;
+    if (!el) return;
+
+    const handler = (e: WheelEvent) => {
+      const input = (e.target as HTMLElement).closest(
+        'input[type="number"]'
+      ) as HTMLInputElement | null;
+      if (!input) return;
+      e.preventDefault();
+
+      const field = input.dataset.field;
+      if (!field) return;
+
+      const step = parseFloat(input.step) || 1;
+      const min = input.min !== "" ? parseFloat(input.min) : -Infinity;
+      const max = input.max !== "" ? parseFloat(input.max) : Infinity;
+      const current = parseFloat(input.value) || 0;
+      const direction = e.deltaY < 0 ? 1 : -1;
+      const decimals = Math.max((input.step.split(".")[1] || "").length, 0);
+      const next = Math.min(
+        max,
+        Math.max(
+          min,
+          parseFloat((current + direction * step).toFixed(decimals))
+        )
+      );
+
+      onFeatureChange(field, next);
+    };
+
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, [onFeatureChange]);
+
+  /* Ctrl/Cmd + Enter to submit from any field */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        formRef.current?.requestSubmit();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
+  /* Elapsed timer while loading */
+  useEffect(() => {
+    if (!isEvaluating) return;
+    const start = Date.now();
+    const id = setInterval(() => {
+      setElapsed((Date.now() - start) / 1000);
+    }, 100);
+    return () => clearInterval(id);
+  }, [isEvaluating]);
+
+  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onEvaluate?.();
+  };
 
   return (
-    <section className="surface-card p-5 md:p-6">
-      <p className="kicker">Inputs</p>
-      <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900">
-        Claim Parameters
-      </h2>
-      <p className="mt-2 text-sm text-zinc-500">
-        Enter claim details, then run one model pass.
-      </p>
+    <form ref={formRef} className="form-panel" onSubmit={handleSubmit}>
+      {SECTIONS.map((section) => {
+        const regularIds = section.featureIds.filter(
+          (id) => !BINARY_FEATURES.has(id)
+        );
+        const binaryIds = section.featureIds.filter((id) =>
+          BINARY_FEATURES.has(id)
+        );
 
-      <div className="mt-6 space-y-6">
-        {SECTIONS.map((section) => (
-          <fieldset key={section.id} className="border-0 p-0">
-            <div className="flex items-center gap-3">
-              <legend className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-zinc-500 uppercase">
-                <span>{section.title}</span>
+        return (
+          <div key={section.id} className="form-section">
+            <div className="section-label">
+              <span className="section-label-main">
+                {section.title}
                 <InfoTooltip
                   label={`About ${section.title}`}
                   text={SECTION_HINTS[section.id]}
                 />
-              </legend>
-              <span className="h-px flex-1 bg-zinc-200" />
+              </span>
             </div>
 
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {section.featureIds
+            <div className="form-grid">
+              {regularIds
                 .map((id) => featuresById.get(id))
                 .filter((feature): feature is Feature => Boolean(feature))
                 .map((feature) => (
@@ -137,43 +207,65 @@ export default function FeaturePanel({
                     key={feature.id}
                     feature={feature}
                     value={featureValues[feature.id]}
-                    onChange={(nextValue) => onFeatureChange(feature.id, nextValue)}
+                    onChange={(nextValue) =>
+                      onFeatureChange(feature.id, nextValue)
+                    }
                   />
                 ))}
             </div>
-          </fieldset>
-        ))}
-      </div>
 
-      <div className="mt-6 space-y-2.5 border-t border-zinc-200 pt-5">
+            {binaryIds.length > 0 && (
+              <div className="toggle-grid">
+                {binaryIds
+                  .map((id) => featuresById.get(id))
+                  .filter((feature): feature is Feature => Boolean(feature))
+                  .map((feature) => (
+                    <ToggleField
+                      key={feature.id}
+                      feature={feature}
+                      value={featureValues[feature.id]}
+                      onChange={(nextValue) =>
+                        onFeatureChange(feature.id, nextValue)
+                      }
+                    />
+                  ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      <div className="form-actions">
         <button
-          type="button"
-          onClick={onEvaluate}
+          className={`run-btn${isEvaluating ? " is-loading" : ""}`}
+          type="submit"
           disabled={isEvaluating || !canEvaluate}
-          className="h-11 w-full rounded-md bg-zinc-900 px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-45"
         >
-          {isEvaluating
-            ? "Running evaluation..."
-            : hasPrediction
-              ? "Re-run evaluation"
-              : "Run evaluation"}
+          {isEvaluating ? (
+            <>
+              <span className="spinner" />
+              Evaluating
+              <span className="elapsed-time">{elapsed.toFixed(1)}s</span>
+            </>
+          ) : hasPrediction ? (
+            "Re-run Evaluation"
+          ) : (
+            "Run Evaluation"
+          )}
         </button>
-
-        <button
-          type="button"
-          onClick={onReset}
-          className="h-11 w-full rounded-md border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
-        >
-          Reset to defaults
-        </button>
-
-        <p className="pt-1 text-xs text-zinc-400">
+        <div className="form-footer">
+          <button type="button" className="reset-link" onClick={onReset}>
+            Reset to defaults
+          </button>
+          <span className="shortcut-hint">⌘/Ctrl + Enter</span>
+        </div>
+        <p className="form-status">
           {canEvaluate
             ? "Input changes are ready to score."
             : "Current values already match the latest result."}
         </p>
       </div>
-    </section>
+    </form>
   );
 }
 
@@ -198,13 +290,16 @@ function FeatureField({
       : feature.min ?? 0;
 
     return (
-      <label className="block rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5">
-        <FieldLabel
-          label={feature.label}
-          hint={FEATURE_HINTS[feature.id] ?? "Feature used by the fraud model."}
-        />
+      <label className="field">
+        <span
+          className="field-label"
+          data-hint={FEATURE_HINTS[feature.id] ?? "Feature used by the model."}
+        >
+          {feature.label}
+        </span>
         <input
           type="number"
+          data-field={feature.id}
           min={feature.min ?? 0}
           max={feature.max ?? 100}
           step={feature.step ?? 1}
@@ -212,11 +307,7 @@ function FeatureField({
           onChange={(event) =>
             onChange(event.target.value === "" ? "" : Number(event.target.value))
           }
-          className="mt-1.5 h-9 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-sm text-zinc-900"
         />
-        <span className="mt-1 block font-mono text-[10px] text-zinc-400">
-          {feature.min ?? 0} - {feature.max ?? 100}
-        </span>
       </label>
     );
   }
@@ -226,15 +317,16 @@ function FeatureField({
   );
 
   return (
-    <label className="block rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5">
-      <FieldLabel
-        label={feature.label}
-        hint={FEATURE_HINTS[feature.id] ?? "Feature used by the fraud model."}
-      />
+    <label className="field">
+      <span
+        className="field-label"
+        data-hint={FEATURE_HINTS[feature.id] ?? "Feature used by the model."}
+      >
+        {feature.label}
+      </span>
       <select
         value={String(value)}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 h-9 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-sm text-zinc-900"
       >
         {options.map((option) => (
           <option key={`${feature.id}-${option.value}`} value={option.value}>
@@ -246,22 +338,38 @@ function FeatureField({
   );
 }
 
-function FieldLabel({ label, hint }: { label: string; hint: string }) {
+function ToggleField({
+  feature,
+  value,
+  onChange,
+}: {
+  feature: Feature;
+  value: string | number;
+  onChange: (value: string | number) => void;
+}) {
+  const isChecked = String(value) === "1";
+
   return (
-    <span className="flex items-center gap-1.5 text-xs text-zinc-500">
-      <span>{label}</span>
-      <InfoTooltip label={`About ${label}`} text={hint} />
-    </span>
+    <label className="toggle-label">
+      <input
+        className="sr-only"
+        type="checkbox"
+        checked={isChecked}
+        onChange={(e) => onChange(e.target.checked ? "1" : "0")}
+      />
+      <span className="toggle-dot" />
+      {feature.label}
+    </label>
   );
 }
 
 function InfoTooltip({ label, text }: { label: string; text: string }) {
   return (
-    <button type="button" className="group relative inline-flex" aria-label={label}>
+    <button type="button" className="effects-info" aria-label={label}>
       <svg
+        className="effects-info-icon"
         viewBox="0 0 20 20"
         fill="currentColor"
-        className="h-3.5 w-3.5 text-zinc-400 transition-colors group-hover:text-zinc-600 group-focus-visible:text-zinc-600"
         aria-hidden="true"
       >
         <path
@@ -270,9 +378,7 @@ function InfoTooltip({ label, text }: { label: string; text: string }) {
           clipRule="evenodd"
         />
       </svg>
-      <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 w-56 -translate-x-1/2 rounded-md border border-zinc-200 bg-white px-2.5 py-2 text-[11px] font-normal leading-relaxed text-zinc-600 opacity-0 shadow-sm transition-all group-hover:translate-y-[-2px] group-hover:opacity-100 group-focus-visible:translate-y-[-2px] group-focus-visible:opacity-100">
-        {text}
-      </span>
+      <span className="effects-tooltip">{text}</span>
     </button>
   );
 }

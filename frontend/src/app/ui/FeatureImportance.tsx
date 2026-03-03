@@ -29,7 +29,6 @@ export default function FeatureImportance({
   baseValue = 0,
   riskScore,
   isEvaluated = false,
-  compact = false,
   maxItems = 10,
 }: FeatureImportanceProps) {
   const contributionItems = [...(contributions ?? [])].sort(
@@ -38,202 +37,181 @@ export default function FeatureImportance({
   const visibleContributions = contributionItems.slice(0, maxItems);
   const hasContributions = visibleContributions.length > 0;
 
-  return (
-    <section className={`surface-card ${compact ? "p-4" : "p-5 md:p-6"}`}>
-      <p className="kicker">Explainability</p>
-      <h2
-        className={`mt-2 font-semibold tracking-tight text-zinc-900 ${
-          compact ? "text-xl" : "text-2xl md:text-[1.7rem]"
-        }`}
-      >
-        {compact ? "SHAP-style Effects" : "Feature Effects"}
-      </h2>
-      <p className={`mt-2 ${compact ? "text-xs" : "text-sm"} text-zinc-500`}>
-        {compact
-          ? "Top local effects for this prediction, from baseline to current score."
-          : "Review how each feature increases or decreases risk from the model baseline."}
-      </p>
+  if (!isEvaluated) return null;
 
-      {isEvaluated && hasContributions ? (
-        <ContributionsView
-          contributions={visibleContributions}
-          baseValue={baseValue}
-          riskScore={riskScore}
-          compact={compact}
-        />
-      ) : isEvaluated ? (
-        <GlobalImportanceView items={items.slice(0, maxItems)} compact={compact} />
-      ) : (
-        <EmptyStateView compact={compact} />
-      )}
-    </section>
-  );
+  if (hasContributions) {
+    return (
+      <WaterfallView
+        contributions={visibleContributions}
+        baseValue={baseValue}
+        riskScore={riskScore}
+      />
+    );
+  }
+
+  return <GlobalImportanceView items={items.slice(0, maxItems)} />;
 }
 
-function EmptyStateView({ compact }: { compact: boolean }) {
-  return (
-    <div
-      className={`mt-4 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 text-center text-zinc-500 ${
-        compact ? "px-3 py-4 text-xs" : "px-4 py-6 text-sm"
-      }`}
-    >
-      Run evaluation to view feature impact details.
-    </div>
-  );
-}
-
-function ContributionsView({
+function WaterfallView({
   contributions,
   baseValue,
   riskScore,
-  compact,
 }: {
   contributions: FeatureContribution[];
   baseValue: number;
   riskScore?: number;
-  compact: boolean;
 }) {
   const sumImpacts = contributions.reduce((sum, item) => sum + item.impact, 0);
-  const maxAbs = Math.max(
-    Math.abs(baseValue),
-    ...contributions.map((item) => Math.abs(item.impact)),
-    0.01
-  );
   const finalScore = riskScore ?? baseValue + sumImpacts;
-  const baselinePercent = formatPercent(baseValue);
-  const currentPercent = formatPercent(finalScore);
+
+  const deltaToFinal = finalScore - baseValue;
+  const maxAbs = Math.max(
+    Math.abs(deltaToFinal),
+    ...contributions.map((item) => Math.abs(item.impact)),
+    0.001
+  );
+  const axisHalfWidth = 40;
+  const baselinePos = 50;
+
+  const segments = contributions.map((item, index) => {
+    const width = Math.max(
+      (Math.abs(item.impact) / maxAbs) * axisHalfWidth,
+      1.2
+    );
+    const left = item.impact >= 0 ? baselinePos : baselinePos - width;
+    const direction =
+      item.impact > 0
+        ? "increase"
+        : item.impact < 0
+          ? "decrease"
+          : "neutral";
+
+    return { ...item, key: `${item.name}-${index}`, left, width, direction };
+  });
 
   return (
-    <div className="mt-4 space-y-3">
-      <div
-        className={`rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-600 ${
-          compact ? "px-2.5 py-2 text-[11px]" : "px-3 py-2 text-xs"
-        }`}
-      >
-        <div className="flex items-center justify-between gap-2">
-          <span>
-            Baseline <strong className="font-semibold text-zinc-700">{baselinePercent}</strong>
-          </span>
-          <span>
-            Current <strong className="font-semibold text-zinc-700">{currentPercent}</strong>
-          </span>
-        </div>
-        <p className="mt-1">
-          Feature effects total {formatPercent(sumImpacts)} from baseline to current.
-        </p>
+    <section className="explanation-block">
+      <div className="explanation-head">
+        <span className="explanation-head-main">
+          Feature Effects
+          <InfoTooltip
+            label="How to read Feature Effects"
+            text="Baseline is the model's starting risk for a typical profile. Each bar shows how one feature moves risk up (red) or down (green) from that baseline."
+          />
+        </span>
       </div>
 
-      {contributions.map((item) => {
-        const isPositive = item.impact >= 0;
-        const widthPercent = (Math.abs(item.impact) / maxAbs) * 50;
+      <div className="waterfall-summary">
+        <span>Baseline {formatPercent(baseValue)}</span>
+        <span>Current {formatPercent(finalScore)}</span>
+      </div>
 
-        return (
-          <article
-            key={item.name}
-            className={`rounded-lg border border-zinc-200 ${compact ? "p-2.5" : "p-3"}`}
+      <ul className="waterfall-list">
+        {segments.map((segment, i) => (
+          <li
+            key={segment.key}
+            className="waterfall-row"
+            style={{ animationDelay: `${i * 60}ms` }}
           >
-            <div className="flex items-start justify-between gap-2">
-              <h3 className={`${compact ? "text-xs" : "text-sm"} font-medium text-zinc-900`}>
-                {item.name}
-              </h3>
+            <div className="waterfall-meta">
+              <span className="waterfall-name">{segment.name}</span>
               <span
-                className={`rounded px-2 py-0.5 font-medium ${
-                  compact ? "text-[10px]" : "text-[11px]"
-                } ${isPositive ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}
+                className={`waterfall-delta waterfall-delta-${segment.direction}`}
               >
-                {isPositive ? "Increases risk" : "Decreases risk"}
+                {formatEffect(segment.impact)}
               </span>
             </div>
 
-            <p className={`mt-1 ${compact ? "text-[11px]" : "text-xs"} text-zinc-500`}>
-              Value:{" "}
-              <span className="font-mono text-zinc-700">
-                {formatExplainabilityValue(item.name, item.value)}
-              </span>
-            </p>
-
-            <div
-              className={`mt-2 flex items-center justify-between ${
-                compact ? "text-[11px]" : "text-xs"
-              } text-zinc-500`}
-            >
-              <span>Impact</span>
-              <span className="font-mono text-zinc-800">
-                {item.impact >= 0 ? "+" : ""}
-                {formatPercent(item.impact)}
-              </span>
-            </div>
-
-            <div
-              className={`relative mt-1.5 rounded-full bg-zinc-100 ${
-                compact ? "h-3.5" : "h-4"
-              }`}
-            >
-              <div
-                className="absolute left-1/2 top-0 h-full w-px -translate-x-px bg-zinc-400"
-                aria-hidden="true"
+            <div className="waterfall-track">
+              <span
+                className="waterfall-marker waterfall-marker-base"
+                style={{ left: `${baselinePos}%` }}
               />
-              <div
-                className={`absolute top-[2px] h-[calc(100%-4px)] ${
-                  isPositive ? "left-1/2 bg-red-500" : "right-1/2 bg-emerald-500"
-                }`}
+              <span
+                className={`waterfall-bar waterfall-${segment.direction}`}
                 style={{
-                  width: `max(${widthPercent}%, 8px)`,
-                  borderTopLeftRadius: isPositive ? 0 : 9999,
-                  borderBottomLeftRadius: isPositive ? 0 : 9999,
-                  borderTopRightRadius: isPositive ? 9999 : 0,
-                  borderBottomRightRadius: isPositive ? 9999 : 0,
+                  left: `${segment.left}%`,
+                  width: `${segment.width}%`,
                 }}
-                aria-label={`${item.name} impact ${formatPercent(item.impact)}`}
               />
             </div>
-          </article>
-        );
-      })}
-    </div>
+
+            <div className="waterfall-values">
+              value{" "}
+              {formatExplainabilityValue(segment.name, segment.value)}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
 function GlobalImportanceView({
   items,
-  compact,
 }: {
   items: FeatureImportanceItem[];
-  compact: boolean;
 }) {
   return (
-    <div className="mt-4 space-y-2.5">
-      <p className={`${compact ? "text-xs" : "text-sm"} text-zinc-500`}>
-        Case-level effects are unavailable. Showing global feature importance.
-      </p>
+    <section className="explanation-block">
+      <div className="explanation-head">
+        <span className="explanation-head-main">
+          Global Importance
+          <InfoTooltip
+            label="About Global Importance"
+            text="Case-level SHAP effects are unavailable. Showing global feature importance from the trained model."
+          />
+        </span>
+      </div>
 
-      {items.map((item) => (
-        <article
-          key={item.name}
-          className={`rounded-lg border border-zinc-200 ${compact ? "p-2.5" : "p-3"}`}
-        >
-          <div className="flex items-center justify-between gap-2 text-sm">
-            <h3 className={`${compact ? "text-xs" : "text-sm"} font-medium text-zinc-900`}>
-              {item.name}
-            </h3>
-            <span className="font-mono text-xs text-zinc-500">
-              {(item.value * 100).toFixed(0)}%
-            </span>
-          </div>
+      <ul className="importance-list">
+        {items.map((item) => (
+          <li key={item.name} className="importance-row">
+            <div className="importance-meta">
+              <span className="importance-name">{item.name}</span>
+              <span className="importance-value">
+                {(item.value * 100).toFixed(0)}%
+              </span>
+            </div>
 
-          <div className={`mt-2 rounded-full bg-zinc-100 ${compact ? "h-1.5" : "h-2"}`}>
-            <div
-              className={`rounded-full bg-zinc-900 ${compact ? "h-1.5" : "h-2"}`}
-              style={{ width: `${item.value * 100}%` }}
-              aria-label={`${item.name} importance ${Math.round(item.value * 100)} percent`}
-            />
-          </div>
-        </article>
-      ))}
-    </div>
+            <div className="importance-track">
+              <div
+                className="importance-bar"
+                style={{ width: `${item.value * 100}%` }}
+                aria-label={`${item.name} importance ${Math.round(item.value * 100)} percent`}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function InfoTooltip({ label, text }: { label: string; text: string }) {
+  return (
+    <button type="button" className="effects-info" aria-label={label}>
+      <svg
+        className="effects-info-icon"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 4.75a.75.75 0 10-1.5 0v.5a.75.75 0 001.5 0v-.5zm0 3.5a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0v-3z"
+          clipRule="evenodd"
+        />
+      </svg>
+      <span className="effects-tooltip">{text}</span>
+    </button>
   );
 }
 
 function formatPercent(value: number) {
-  return `${(value * 100).toFixed(2)}%`;
+  return `${Math.round(value * 100)}%`;
+}
+
+function formatEffect(effect: number): string {
+  return `${effect >= 0 ? "+" : "-"}${Math.abs(effect * 100).toFixed(1)}%`;
 }
