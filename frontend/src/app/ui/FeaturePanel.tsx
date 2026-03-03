@@ -48,8 +48,8 @@ const SECTIONS: Section[] = [
     featureIds: [
       "age_of_driver",
       "gender",
-      "high_education_ind",
       "living_status",
+      "high_education_ind",
     ],
   },
   {
@@ -58,8 +58,8 @@ const SECTIONS: Section[] = [
     featureIds: [
       "claim_day_of_week",
       "claim_est_payout",
-      "witness_present_ind",
       "annual_income",
+      "witness_present_ind",
     ],
   },
   {
@@ -178,31 +178,33 @@ export default function FeaturePanel({
 
   return (
     <form ref={formRef} className="form-panel" onSubmit={handleSubmit}>
-      {SECTIONS.map((section) => {
-        const regularIds = section.featureIds.filter(
-          (id) => !BINARY_FEATURES.has(id)
-        );
-        const binaryIds = section.featureIds.filter((id) =>
-          BINARY_FEATURES.has(id)
-        );
+      {SECTIONS.map((section) => (
+        <div key={section.id} className="form-section">
+          <div className="section-label">
+            <span className="section-label-main">
+              {section.title}
+              <InfoTooltip
+                label={`About ${section.title}`}
+                text={SECTION_HINTS[section.id]}
+              />
+            </span>
+          </div>
 
-        return (
-          <div key={section.id} className="form-section">
-            <div className="section-label">
-              <span className="section-label-main">
-                {section.title}
-                <InfoTooltip
-                  label={`About ${section.title}`}
-                  text={SECTION_HINTS[section.id]}
-                />
-              </span>
-            </div>
-
-            <div className="form-grid">
-              {regularIds
-                .map((id) => featuresById.get(id))
-                .filter((feature): feature is Feature => Boolean(feature))
-                .map((feature) => (
+          <div className="form-grid">
+            {section.featureIds
+              .map((id) => featuresById.get(id))
+              .filter((feature): feature is Feature => Boolean(feature))
+              .map((feature) =>
+                BINARY_FEATURES.has(feature.id) ? (
+                  <ToggleField
+                    key={feature.id}
+                    feature={feature}
+                    value={featureValues[feature.id]}
+                    onChange={(nextValue) =>
+                      onFeatureChange(feature.id, nextValue)
+                    }
+                  />
+                ) : (
                   <FeatureField
                     key={feature.id}
                     feature={feature}
@@ -211,29 +213,11 @@ export default function FeaturePanel({
                       onFeatureChange(feature.id, nextValue)
                     }
                   />
-                ))}
-            </div>
-
-            {binaryIds.length > 0 && (
-              <div className="toggle-grid">
-                {binaryIds
-                  .map((id) => featuresById.get(id))
-                  .filter((feature): feature is Feature => Boolean(feature))
-                  .map((feature) => (
-                    <ToggleField
-                      key={feature.id}
-                      feature={feature}
-                      value={featureValues[feature.id]}
-                      onChange={(nextValue) =>
-                        onFeatureChange(feature.id, nextValue)
-                      }
-                    />
-                  ))}
-              </div>
-            )}
+                )
+              )}
           </div>
-        );
-      })}
+        </div>
+      ))}
 
       <div className="form-actions">
         <button
@@ -350,16 +334,24 @@ function ToggleField({
   const isChecked = String(value) === "1";
 
   return (
-    <label className="toggle-label">
-      <input
-        className="sr-only"
-        type="checkbox"
-        checked={isChecked}
-        onChange={(e) => onChange(e.target.checked ? "1" : "0")}
-      />
-      <span className="toggle-dot" />
-      {feature.label}
-    </label>
+    <div className="field toggle-field">
+      <span
+        className="field-label"
+        data-hint={FEATURE_HINTS[feature.id] ?? "Feature used by the model."}
+      >
+        {feature.label}
+      </span>
+      <label className="toggle-label toggle-label--grid">
+        <input
+          className="sr-only"
+          type="checkbox"
+          checked={isChecked}
+          onChange={(e) => onChange(e.target.checked ? "1" : "0")}
+        />
+        <span className="toggle-dot" />
+        {isChecked ? "Yes" : "No"}
+      </label>
+    </div>
   );
 }
 

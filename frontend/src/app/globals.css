@@ -358,6 +358,18 @@ select:focus {
   border-color: var(--accent);
 }
 
+/* Toggle inside the form grid — matches input height */
+.toggle-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.toggle-label--grid {
+  flex: 1;
+  font-size: 14px;
+}
+
 /* ── Form actions ───────────────────────────── */
 .form-actions {
   margin-top: 32px;
