@@ -21,14 +21,17 @@ export default function StatusSummary({
   );
   const isLowRisk = score < threshold;
   const tier = isLowRisk ? "low" : "high";
-  const tierLabel = isLowRisk ? "Low Risk" : "Fraud Likely";
+  const tierLabel = isEvaluated ? status : "Awaiting Evaluation";
 
-  const gaugeStyle = isEvaluated
-    ? ({
-        "--gauge-deg": `${Math.round(score * 360)}deg`,
-        "--gauge-color": isLowRisk ? "var(--low)" : "var(--high)",
-      } as React.CSSProperties)
-    : undefined;
+  const gaugeStyle = {
+    "--threshold-deg": `${Math.round(threshold * 360)}deg`,
+    ...(isEvaluated
+      ? {
+          "--gauge-deg": `${Math.round(score * 360)}deg`,
+          "--gauge-color": isLowRisk ? "var(--low)" : "var(--high)",
+        }
+      : {}),
+  } as React.CSSProperties;
 
   const delta = isLowRisk
     ? `${(thresholdPercent - scorePercent).toFixed(1)}% below threshold`
@@ -38,6 +41,7 @@ export default function StatusSummary({
     <>
       <div className="gauge-wrap">
         <div className="gauge-ring" style={gaugeStyle}>
+          <span className="gauge-threshold-line" aria-hidden="true" />
           <div className="gauge-inner">
             <div className="gauge-percent">{scorePercent}%</div>
             <div className={`gauge-tier tier-${tier}`}>{tierLabel}</div>

@@ -178,24 +178,56 @@ function formatScorePercent(value: number) {
 }
 
 function formatSummaryProbabilities(text: string, riskScore?: number): string {
-  return text.replace(/\b0?\.\d+\b/g, (match, offset, fullText) => {
-    const numeric = Number(match);
-    if (!Number.isFinite(numeric) || numeric < 0 || numeric > 1) {
-      return match;
-    }
+  let normalized = text;
 
-    const start = Math.max(0, offset - 24);
-    const end = Math.min(fullText.length, offset + match.length + 24);
-    const context = fullText.slice(start, end).toLowerCase();
-    const looksLikeScore = /(risk|score|probab|fraud)/.test(context);
-    if (!looksLikeScore) {
-      return match;
-    }
+  if (riskScore !== undefined) {
+    const scorePattern =
+      /(risk score(?:\s+of)?\s+)(\d+(?:\.\d+)?)%/gi;
+    normalized = normalized.replace(
+      scorePattern,
+      (_full, prefix: string) => `${prefix}${formatScorePercent(riskScore)}`
+    );
+  }
 
-    if (riskScore !== undefined) {
-      return formatScorePercent(riskScore);
-    }
+  const probabilityPattern =
+    /(^|[^0-9])((?:0(?:\.\d+)?)|(?:1(?:\.0+)?))(?!\d)/g;
+  return normalized.replace(
+    probabilityPattern,
+    (
+      fullMatch: string,
+      prefix: string,
+      probability: string,
+      offset: number,
+      fullText: string
+    ) => {
+      const probabilityStart = offset + prefix.length;
+      const nextChar = fullText[probabilityStart + probability.length];
+      if (nextChar === "%") {
+        return fullMatch;
+      }
 
-    return `${(numeric * 100).toFixed(1)}%`;
-  });
+      const numeric = Number(probability);
+      if (!Number.isFinite(numeric) || numeric < 0 || numeric > 1) {
+        return fullMatch;
+      }
+
+      const start = Math.max(0, probabilityStart - 24);
+      const end = Math.min(
+        fullText.length,
+        probabilityStart + probability.length + 24
+      );
+      const context = fullText.slice(start, end).toLowerCase();
+      const looksLikeScore = /(risk|score|probab|fraud)/.test(context);
+      if (!looksLikeScore) {
+        return fullMatch;
+      }
+
+      const renderedPercent =
+        riskScore !== undefined
+          ? formatScorePercent(riskScore)
+          : `${(numeric * 100).toFixed(1)}%`;
+
+      return `${prefix}${renderedPercent}`;
+    }
+  );
 }
