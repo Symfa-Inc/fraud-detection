@@ -181,11 +181,10 @@ function formatSummaryProbabilities(text: string, riskScore?: number): string {
   let normalized = text;
 
   if (riskScore !== undefined) {
-    const scorePattern =
-      /(risk score(?:\s+of)?\s+)(\d+(?:\.\d+)?)%/gi;
+    const scorePattern = /(risk score(?:\s+of)?\s+)(\d+(?:\.\d+)?)%/gi;
     normalized = normalized.replace(
       scorePattern,
-      (_full, prefix: string) => `${prefix}${formatScorePercent(riskScore)}`
+      (_full, prefix: string) => `${prefix}${formatScorePercent(riskScore)}`,
     );
   }
 
@@ -198,7 +197,7 @@ function formatSummaryProbabilities(text: string, riskScore?: number): string {
       prefix: string,
       probability: string,
       offset: number,
-      fullText: string
+      fullText: string,
     ) => {
       const probabilityStart = offset + prefix.length;
       const nextChar = fullText[probabilityStart + probability.length];
@@ -214,7 +213,7 @@ function formatSummaryProbabilities(text: string, riskScore?: number): string {
       const start = Math.max(0, probabilityStart - 24);
       const end = Math.min(
         fullText.length,
-        probabilityStart + probability.length + 24
+        probabilityStart + probability.length + 24,
       );
       const context = fullText.slice(start, end).toLowerCase();
       const looksLikeScore = /(risk|score|probab|fraud)/.test(context);
@@ -228,6 +227,6 @@ function formatSummaryProbabilities(text: string, riskScore?: number): string {
           : `${(numeric * 100).toFixed(1)}%`;
 
       return `${prefix}${renderedPercent}`;
-    }
+    },
   );
 }

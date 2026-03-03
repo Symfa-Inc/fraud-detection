@@ -552,7 +552,8 @@ select:focus {
   border-radius: 999px;
   background: var(--text-strong);
   box-shadow: 0 0 0 1px rgba(6, 13, 20, 0.22);
-  transform: translate(-50%, -50%) rotate(var(--threshold-deg)) translateY(-94px);
+  transform: translate(-50%, -50%) rotate(var(--threshold-deg))
+    translateY(-94px);
 }
 
 .gauge-inner {
