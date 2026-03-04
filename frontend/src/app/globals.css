@@ -756,7 +756,7 @@ select:focus {
 }
 
 .waterfall-increase {
-  background: rgba(192, 84, 79, 0.50);
+  background: rgba(192, 84, 79, 0.5);
   border-top-right-radius: 999px;
   border-bottom-right-radius: 999px;
 }
@@ -768,7 +768,7 @@ select:focus {
 }
 
 .waterfall-neutral {
-  background: rgba(58, 158, 122, 0.30);
+  background: rgba(58, 158, 122, 0.3);
   border-radius: 0;
 }
 
