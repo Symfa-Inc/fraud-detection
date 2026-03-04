@@ -23,13 +23,13 @@
   --accent-dim: rgba(26, 43, 60, 0.04);
   --accent-glow: rgba(26, 43, 60, 0.1);
 
-  /* Status — clear, accessible, tested on white */
-  --low: #1a8d5f;
-  --low-bg: rgba(26, 141, 95, 0.06);
-  --low-border: rgba(26, 141, 95, 0.14);
-  --high: #d63031;
-  --high-bg: rgba(214, 48, 49, 0.05);
-  --high-border: rgba(214, 48, 49, 0.14);
+  /* Status — muted, professional, consistent across gauge & charts */
+  --low: #3a9e7a;
+  --low-bg: rgba(58, 158, 122, 0.06);
+  --low-border: rgba(58, 158, 122, 0.14);
+  --high: #c0544f;
+  --high-bg: rgba(192, 84, 79, 0.05);
+  --high-border: rgba(192, 84, 79, 0.14);
 
   /* Elevation — layered shadow system */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -756,19 +756,19 @@ select:focus {
 }
 
 .waterfall-increase {
-  background: rgba(214, 48, 49, 0.55);
+  background: rgba(192, 84, 79, 0.50);
   border-top-right-radius: 999px;
   border-bottom-right-radius: 999px;
 }
 
 .waterfall-decrease {
-  background: rgba(26, 141, 95, 0.45);
+  background: rgba(58, 158, 122, 0.45);
   border-top-left-radius: 999px;
   border-bottom-left-radius: 999px;
 }
 
 .waterfall-neutral {
-  background: rgba(26, 141, 95, 0.3);
+  background: rgba(58, 158, 122, 0.30);
   border-radius: 0;
 }
 
