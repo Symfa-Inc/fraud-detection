@@ -1,31 +1,27 @@
-FROM python:3.13-slim
+FROM python:3.13-slim AS base
 
-# Prevent Python from writing pyc files and enable unbuffered logging
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
-
-# Install build dependencies (AutoGluon/scikit-learn may need some)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        curl \
-        libfreetype6 \
-        libjpeg62-turbo \
-        libpng-dev \
-    && rm -rf /var/lib/apt/lists/*
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy only files needed for production (build context = backend/)
+# Build tools needed by statsforecast (C++ extensions)
+RUN apt-get update && apt-get install -y --no-install-recommends g++ && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Install dependencies (cached layer)
 COPY pyproject.toml ./
-COPY src ./src
-COPY models/neuralnet ./models/neuralnet
+RUN uv sync --no-dev --no-install-project
+
+# Copy application code
+COPY src/ src/
+COPY models/neuralnet/ models/neuralnet/
 COPY data/feature_importance_shap.json data/train.parquet ./data/
 
-# Install Python dependencies
-RUN pip install --upgrade pip setuptools wheel \
-    && pip install "uv>=0.4.20" \
-    && uv pip install --system .
+# Install the project itself
+RUN uv sync --no-dev
 
 # Config uses env vars for paths when running from installed package
 ENV MODEL_DIR=/app/models/neuralnet/
@@ -35,4 +31,5 @@ ENV TRAIN_DATA_PATH=/app/data/train.parquet
 ENV OPENAI_SUMMARY_MODEL=gpt-4o-mini
 
 EXPOSE 8000
-CMD ["uvicorn", "fraud_detection.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+CMD ["uv", "run", "uvicorn", "risk_profiler.main:app", "--host", "0.0.0.0", "--port", "8000"]

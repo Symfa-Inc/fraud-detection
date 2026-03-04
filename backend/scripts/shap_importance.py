@@ -13,7 +13,7 @@ import shap
 
 # Ensure backend src is on path for config import
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from fraud_detection.config import FEATURE_IMPORTANCE_PATH, MODEL_DIR, TRAIN_DATA_PATH
+from risk_profiler.config import FEATURE_IMPORTANCE_PATH, MODEL_DIR, TRAIN_DATA_PATH
 
 # Map column names to display labels (match frontend)
 FEATURE_LABELS = {

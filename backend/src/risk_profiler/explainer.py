@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from fraud_detection.config import MODEL_DIR, TRAIN_DATA_PATH
+from risk_profiler.config import MODEL_DIR, TRAIN_DATA_PATH
 
 FEATURE_LABELS = {
     "age_of_driver": "Age of driver",

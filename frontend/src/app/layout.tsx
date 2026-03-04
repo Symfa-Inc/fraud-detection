@@ -1,23 +1,29 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Manrope } from "next/font/google";
+import { DM_Serif_Display, IBM_Plex_Mono, Rajdhani } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const rajdhani = Rajdhani({
+  variable: "--font-rajdhani",
+  weight: "700",
   subsets: ["latin"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+const dmSerifDisplay = DM_Serif_Display({
+  variable: "--font-display",
+  style: "normal",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Fraud Detection",
-  description: "Insurance claim fraud detection",
-  icons: {
-    icon: "/icon.png",
-  },
+  title: "RiskProfiler",
+  description: "Insurance claim risk profiling and explainability",
 };
 
 export default function RootLayout({
@@ -28,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${manrope.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${rajdhani.variable} ${dmSerifDisplay.variable} ${ibmPlexMono.variable}`}
       >
         {children}
       </body>

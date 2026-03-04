@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src=".assets/logo.png" width="100" alt="Fraud Detection Logo">
+<img src=".assets/logo.png" width="100" alt="RiskProfiler Logo">
 
-# 🕵️ Insurance Claim Fraud Detection
+# 🕵️ Insurance Claim Risk Profiler
 
 [![Python 3.13](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/downloads/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6.svg)](https://www.typescriptlang.org/)
@@ -12,16 +12,16 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.6-F7931E.svg?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 
-**Machine learning prototype for detecting fraudulent insurance claims.**
+**Machine learning prototype for profiling risk in insurance claims.**
 
-🔗 **Live Demo**: [fraud-detection-demo.symfa.com](https://fraud-detection-demo-placeholder.vercel.app/)
+🔗 **Live Demo**: [risk-profiler-demo.symfa.com](https://risk-profiler-demo-placeholder.vercel.app/)
 
 </div>
 
 
 ## Overview
 
-Fraud Detection is a machine learning prototype for identifying potentially fraudulent insurance claims. Based on the [2023 Travelers NESS Statathon Kaggle Competition](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview), it helps insurance companies reduce financial losses, streamline investigations, and allocate resources more efficiently through automated prediction and SHAP-based explainability.
+RiskProfiler is a machine learning prototype for identifying potentially fraudulent insurance claims. Based on the [2023 Travelers NESS Statathon Kaggle Competition](https://www.kaggle.com/competitions/2023-travelers-ness-statathon/overview), it helps insurance companies reduce financial losses, streamline investigations, and allocate resources more efficiently through automated prediction and SHAP-based explainability.
 
 ### Key Features
 
@@ -94,10 +94,10 @@ The dataset contains insurance claim records from the Travelers NESS Statathon c
 ## Project Structure
 
 ```
-fraud-detection/
+risk-profiler/
 ├── backend/                        # Python backend (FastAPI)
 │   ├── Dockerfile                  # Backend container
-│   ├── src/fraud_detection/        # Application code
+│   ├── src/risk_profiler/          # Application code
 │   ├── models/                     # Trained ML model artifacts
 │   ├── notebooks/                  # Jupyter notebooks (EDA, experiments)
 │   ├── scripts/                    # Training & preprocessing scripts
@@ -125,8 +125,8 @@ fraud-detection/
 
 ```bash
 # Clone the repository
-git clone https://github.com/Symfa-Inc/fraud-detection.git
-cd fraud-detection
+git clone https://github.com/Symfa-Inc/risk-profiler.git
+cd risk-profiler
 
 # Install backend dependencies
 uv sync
@@ -140,7 +140,7 @@ pnpm install
 
 **Backend:**
 ```bash
-uv run uvicorn fraud_detection.main:app --port 8000 --reload
+uv run uvicorn risk_profiler.main:app --port 8000 --reload
 ```
 
 **Frontend:**
@@ -156,15 +156,15 @@ The backend API will be available at `http://localhost:8000` and the frontend at
 **Backend** (from `backend/` directory):
 ```bash
 cd backend
-docker build -t fraud-detection-backend .
-docker run -p 8000:8000 fraud-detection-backend
+docker build -t risk-profiler-backend .
+docker run -p 8000:8000 risk-profiler-backend
 ```
 
 **Frontend** (from `frontend/` directory):
 ```bash
 cd frontend
-docker build -t fraud-detection-frontend .
-docker run -p 3000:3000 -e API_URL=http://localhost:8000 fraud-detection-frontend
+docker build -t risk-profiler-frontend .
+docker run -p 3000:3000 -e API_URL=http://localhost:8000 risk-profiler-frontend
 ```
 
 Set `API_URL` to your backend URL when the frontend runs in a different host/container.

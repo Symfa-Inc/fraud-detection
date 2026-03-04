@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create an instance of axios with the base URL
 const api = axios.create({
-    baseURL: "http://localhost:8000",
+  baseURL: "http://localhost:8000",
 });
 
 export type PredictionRequest = {
@@ -33,7 +33,7 @@ export type PredictionResponse = {
 };
 
 export const predict = async (
-  payload: PredictionRequest
+  payload: PredictionRequest,
 ): Promise<PredictionResponse> => {
   const { data } = await api.post<PredictionResponse>("/predict", payload);
   return data;
@@ -45,7 +45,7 @@ export const getFeatureImportance = async (): Promise<
   FeatureImportanceItem[]
 > => {
   const { data } = await api.get<FeatureImportanceItem[]>(
-    "/feature-importance"
+    "/feature-importance",
   );
   return Array.isArray(data) ? data : [];
 };

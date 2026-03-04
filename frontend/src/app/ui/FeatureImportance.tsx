@@ -1,5 +1,7 @@
 "use client";
 
+import { formatExplainabilityValue } from "../utils/explainability";
+
 type FeatureImportanceItem = {
   name: string;
   value: number;
@@ -17,6 +19,8 @@ type FeatureImportanceProps = {
   baseValue?: number;
   riskScore?: number;
   isEvaluated?: boolean;
+  compact?: boolean;
+  maxItems?: number;
 };
 
 export default function FeatureImportance({
@@ -25,59 +29,30 @@ export default function FeatureImportance({
   baseValue = 0,
   riskScore,
   isEvaluated = false,
+  maxItems = 10,
 }: FeatureImportanceProps) {
-  const hasContributions = contributions && contributions.length > 0;
-
-  return (
-    <section
-      className={`min-w-0 rounded-2xl border p-6 shadow-sm ${
-        isEvaluated
-          ? "border-slate-200 bg-white"
-          : "border-slate-200 bg-slate-50/80"
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Explainability
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold">
-            {hasContributions
-              ? "How each feature impacted the risk score"
-              : "Why the model decided this"}
-          </h3>
-        </div>
-      </div>
-
-      {isEvaluated && hasContributions ? (
-        <ContributionsView
-          contributions={contributions}
-          baseValue={baseValue}
-          riskScore={riskScore}
-        />
-      ) : isEvaluated ? (
-        <GlobalImportanceView items={items} />
-      ) : (
-        <EmptyStateView />
-      )}
-    </section>
+  const contributionItems = [...(contributions ?? [])].sort(
+    (a, b) => Math.abs(b.impact) - Math.abs(a.impact),
   );
+  const visibleContributions = contributionItems.slice(0, maxItems);
+  const hasContributions = visibleContributions.length > 0;
+
+  if (!isEvaluated) return null;
+
+  if (hasContributions) {
+    return (
+      <WaterfallView
+        contributions={visibleContributions}
+        baseValue={baseValue}
+        riskScore={riskScore}
+      />
+    );
+  }
+
+  return <GlobalImportanceView items={items.slice(0, maxItems)} />;
 }
 
-function EmptyStateView() {
-  return (
-    <div className="mt-6 flex min-h-[12rem] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-100/50 px-6 py-8 text-center">
-      <p className="text-sm text-slate-500">
-        Run Evaluate to see how each feature impacted the risk score.
-      </p>
-      <p className="mt-1 text-xs text-slate-400">
-        Feature contributions will appear here after evaluation.
-      </p>
-    </div>
-  );
-}
-
-function ContributionsView({
+function WaterfallView({
   contributions,
   baseValue,
   riskScore,
@@ -86,97 +61,148 @@ function ContributionsView({
   baseValue: number;
   riskScore?: number;
 }) {
-  const sumImpacts = contributions.reduce((s, c) => s + c.impact, 0);
+  const sumImpacts = contributions.reduce((sum, item) => sum + item.impact, 0);
+  const finalScore = riskScore ?? baseValue + sumImpacts;
+
+  const deltaToFinal = finalScore - baseValue;
   const maxAbs = Math.max(
-    Math.abs(baseValue),
-    ...contributions.map((c) => Math.abs(c.impact)),
-    0.01
+    Math.abs(deltaToFinal),
+    ...contributions.map((item) => Math.abs(item.impact)),
+    0.001,
   );
+  const axisHalfWidth = 40;
+  const baselinePos = 50;
+
+  const segments = contributions.map((item, index) => {
+    const width = Math.max(
+      (Math.abs(item.impact) / maxAbs) * axisHalfWidth,
+      1.2,
+    );
+    const left = item.impact >= 0 ? baselinePos : baselinePos - width;
+    const direction =
+      item.impact > 0 ? "increase" : item.impact < 0 ? "decrease" : "neutral";
+
+    return { ...item, key: `${item.name}-${index}`, left, width, direction };
+  });
 
   return (
-    <div className="mt-6 space-y-4">
-      <p className="text-sm text-slate-600">
-        Each feature adds or subtracts from the baseline.{" "}
-        <strong>Baseline ({((baseValue ?? 0) * 100).toFixed(1)}%)</strong> +
-        feature impacts = <strong>risk score</strong>.
-      </p>
-      {contributions.map((c) => {
-        const isPositive = c.impact >= 0;
-        const pct = (Math.abs(c.impact) / maxAbs) * 50;
-        return (
-          <div key={c.name} className="space-y-1.5">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-slate-700">
-                {c.name} = {c.value}
-              </span>
+    <section className="explanation-block">
+      <div className="explanation-head">
+        <span className="explanation-head-main">
+          Feature Effects
+          <InfoTooltip
+            label="How to read Feature Effects"
+            text="Baseline is the model's starting risk for a typical profile. Each bar shows how one feature moves risk up (red) or down (green) from that baseline."
+          />
+        </span>
+      </div>
+
+      <div className="waterfall-summary">
+        <span>Baseline {formatPercent(baseValue)}</span>
+        <span>Current {formatPercent(finalScore)}</span>
+      </div>
+
+      <ul className="waterfall-list">
+        {segments.map((segment, i) => (
+          <li
+            key={segment.key}
+            className="waterfall-row"
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
+            <div className="waterfall-meta">
+              <span className="waterfall-name">{segment.name}</span>
               <span
-                className={
-                  isPositive
-                    ? "font-semibold tabular-nums text-rose-600"
-                    : "font-semibold tabular-nums text-sky-600"
-                }
+                className={`waterfall-delta waterfall-delta-${segment.direction}`}
               >
-                {c.impact >= 0 ? "+" : ""}
-                {(c.impact * 100).toFixed(2)}% {isPositive ? "↑" : "↓"}
+                {formatEffect(segment.impact)}
               </span>
             </div>
-            <div className="relative flex h-6 items-center">
-              <div className="absolute left-1/2 h-0.5 w-px -translate-x-px bg-slate-300" />
-              <div
-                className={`absolute top-1/2 h-4 -translate-y-1/2 rounded ${
-                  isPositive ? "left-1/2 bg-rose-500" : "right-1/2 bg-sky-500"
-                }`}
+
+            <div className="waterfall-track">
+              <span
+                className="waterfall-marker waterfall-marker-base"
+                style={{ left: `${baselinePos}%` }}
+              />
+              <span
+                className={`waterfall-bar waterfall-${segment.direction}`}
                 style={{
-                  width: `${pct}%`,
-                  ...(isPositive ? { left: "50%" } : { right: "50%" }),
+                  left: `${segment.left}%`,
+                  width: `${segment.width}%`,
                 }}
               />
             </div>
-          </div>
-        );
-      })}
-      {riskScore !== undefined && (
-        <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3">
-          <p className="text-sm font-medium text-slate-700">
-            {(baseValue * 100).toFixed(2)}% baseline + {(sumImpacts * 100).toFixed(2)}%
-            (from features) ={" "}
-            <strong className="text-indigo-700">
-              {(riskScore * 100).toFixed(2)}% risk score
-            </strong>
-          </p>
-        </div>
-      )}
-      <p className="mt-2 text-xs text-slate-500">
-        Positive (red) adds to the risk score; negative (blue) subtracts from it.
-      </p>
-    </div>
+
+            <div className="waterfall-values">
+              value {formatExplainabilityValue(segment.name, segment.value)}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
-function GlobalImportanceView({
-  items,
-}: {
-  items: FeatureImportanceItem[];
-}) {
+function GlobalImportanceView({ items }: { items: FeatureImportanceItem[] }) {
   return (
-    <div className="mt-6 space-y-4">
-      {items.map((item) => (
-        <div key={item.name} className="space-y-2">
-          <div className="flex items-center justify-between text-sm font-medium">
-            <span>{item.name}</span>
-            <span className="text-slate-400">
-              {(item.value * 100).toFixed(0)}%
-            </span>
-          </div>
-          <div className="h-3 rounded-full bg-slate-100">
-            <div
-              className="h-3 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-400"
-              style={{ width: `${item.value * 100}%` }}
-              aria-label={`${item.name} importance`}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
+    <section className="explanation-block">
+      <div className="explanation-head">
+        <span className="explanation-head-main">
+          Global Importance
+          <InfoTooltip
+            label="About Global Importance"
+            text="Case-level SHAP effects are unavailable. Showing global feature importance from the trained model."
+          />
+        </span>
+      </div>
+
+      <ul className="importance-list">
+        {items.map((item) => (
+          <li key={item.name} className="importance-row">
+            <div className="importance-meta">
+              <span className="importance-name">{item.name}</span>
+              <span className="importance-value">
+                {(item.value * 100).toFixed(0)}%
+              </span>
+            </div>
+
+            <div className="importance-track">
+              <div
+                className="importance-bar"
+                style={{ width: `${item.value * 100}%` }}
+                aria-label={`${item.name} importance ${Math.round(item.value * 100)} percent`}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
+}
+
+function InfoTooltip({ label, text }: { label: string; text: string }) {
+  return (
+    <button type="button" className="effects-info" aria-label={label}>
+      <svg
+        className="effects-info-icon"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 4.75a.75.75 0 10-1.5 0v.5a.75.75 0 001.5 0v-.5zm0 3.5a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0v-3z"
+          clipRule="evenodd"
+        />
+      </svg>
+      <span className="effects-tooltip">{text}</span>
+    </button>
+  );
+}
+
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
+function formatEffect(effect: number): string {
+  return `${effect >= 0 ? "+" : "-"}${Math.abs(effect * 100).toFixed(1)}%`;
 }
