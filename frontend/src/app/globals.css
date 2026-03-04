@@ -10,7 +10,7 @@
 
   /* Borders — near-invisible, rely on shadow instead */
   --border: rgba(0, 0, 0, 0.06);
-  --border-hi: rgba(0, 0, 0, 0.10);
+  --border-hi: rgba(0, 0, 0, 0.1);
 
   /* Text — ink-like, high-contrast */
   --text: #2c3338;
@@ -21,7 +21,7 @@
   /* Accent — deep slate-blue, professional */
   --accent: #1a2b3c;
   --accent-dim: rgba(26, 43, 60, 0.04);
-  --accent-glow: rgba(26, 43, 60, 0.10);
+  --accent-glow: rgba(26, 43, 60, 0.1);
 
   /* Status — clear, accessible, tested on white */
   --low: #1a8d5f;
@@ -768,7 +768,7 @@ select:focus {
 }
 
 .waterfall-neutral {
-  background: rgba(26, 141, 95, 0.30);
+  background: rgba(26, 141, 95, 0.3);
   border-radius: 0;
 }
 
@@ -887,7 +887,7 @@ select:focus {
 
 .summary-source-openai {
   color: var(--accent);
-  border-color: rgba(26, 43, 60, 0.20);
+  border-color: rgba(26, 43, 60, 0.2);
   background: rgba(26, 43, 60, 0.04);
 }
 
@@ -996,7 +996,7 @@ select:focus {
   inset: 21px;
   border-radius: 50%;
   background: rgba(26, 43, 60, 0.14);
-  box-shadow: 0 0 10px rgba(26, 43, 60, 0.10);
+  box-shadow: 0 0 10px rgba(26, 43, 60, 0.1);
   animation: pulse-core 2.3s 0.3s ease-in-out infinite;
 }
 
