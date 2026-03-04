@@ -22,7 +22,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fraud Signal Navigator",
+  title: "FraudLens",
   description: "Insurance claim fraud risk evaluation and explainability",
   icons: {
     icon: "/icon.png",

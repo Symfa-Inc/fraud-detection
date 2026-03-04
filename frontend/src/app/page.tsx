@@ -301,11 +301,11 @@ export default function Home() {
     <main className="page-shell">
       <header className="site-header">
         <span className="header-tag">Insurance · Fraud Detection</span>
-        <h1>Fraud Signal Navigator</h1>
+        <h1>FraudLens</h1>
         <p className="header-sub">
-          Evaluate insurance claim fraud risk using machine learning. Review
-          feature-level SHAP explanations to understand which factors increase
-          or decrease the predicted fraud probability.
+          Evaluate insurance claim fraud risk using machine learning and
+          explainable AI. Review feature-level insights to understand what
+          drives the predicted fraud probability.
         </p>
       </header>
 
