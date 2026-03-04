@@ -22,8 +22,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FraudLens",
-  description: "Insurance claim fraud risk evaluation and explainability",
+  title: "RiskProfiler",
+  description: "Insurance claim risk profiling and explainability",
   icons: {
     icon: "/icon.png",
   },

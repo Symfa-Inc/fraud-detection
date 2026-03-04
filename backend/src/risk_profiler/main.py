@@ -6,14 +6,14 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
-from fraud_detection.config import FEATURE_IMPORTANCE_PATH
-from fraud_detection.explainer import compute_contributions
-from fraud_detection.model import load_predictor, predict_fraud, request_to_row
-from fraud_detection.summarizer import generate_summary
+from risk_profiler.config import FEATURE_IMPORTANCE_PATH
+from risk_profiler.explainer import compute_contributions
+from risk_profiler.model import load_predictor, predict_fraud, request_to_row
+from risk_profiler.summarizer import generate_summary
 
 app = FastAPI(
-    title="Fraud Detection API",
-    description="Insurance Claim Fraud Detection API",
+    title="Risk Profiler API",
+    description="Insurance Claim Risk Profiler API",
     version="0.1.0",
 )
 
@@ -65,7 +65,7 @@ class PredictionResponse(BaseModel):
 @app.get("/")
 async def root() -> dict[str, str]:
     """Root endpoint."""
-    return {"message": "Fraud Detection API", "docs": "/docs"}
+    return {"message": "Risk Profiler API", "docs": "/docs"}
 
 
 @app.get("/feature-importance")

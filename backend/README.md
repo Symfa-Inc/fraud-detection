@@ -1,13 +1,13 @@
-# 🐍 Fraud Detection Backend
+# 🐍 Risk Profiler Backend
 
-FastAPI backend for the Insurance Claim Fraud Detection system.
+FastAPI backend for the Insurance Claim Risk Profiler system.
 
 ## 📁 Structure
 
 ```
 backend/
 ├── Dockerfile              # Container configuration
-├── src/fraud_detection/    # Python package (API code)
+├── src/risk_profiler/      # Python package (API code)
 │   ├── __init__.py
 │   └── main.py             # FastAPI application
 ├── models/                 # Trained ML model artifacts
@@ -24,7 +24,7 @@ backend/
 uv sync                     # Install dependencies
 
 # Run the API
-uv run uvicorn fraud_detection.main:app --reload --port 8000
+uv run uvicorn risk_profiler.main:app --reload --port 8000
 ```
 
 - API: http://localhost:8000
@@ -34,21 +34,21 @@ uv run uvicorn fraud_detection.main:app --reload --port 8000
 
 ```bash
 # From backend/ directory
-docker build -t fraud-detection-backend .
-docker run -p 8000:8000 fraud-detection-backend
+docker build -t risk-profiler-backend .
+docker run -p 8000:8000 risk-profiler-backend
 ```
 
 ## 📦 Package Management
 
 ```bash
 # Add a dependency
-uv add <package> --package fraud-detection
+uv add <package> --package risk-profiler
 
 # Add a dev dependency
-uv add <package> --package fraud-detection --dev
+uv add <package> --package risk-profiler --dev
 
 # Remove a dependency
-uv remove <package> --package fraud-detection
+uv remove <package> --package risk-profiler
 ```
 
 ## 🧪 Development

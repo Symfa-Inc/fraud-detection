@@ -32,4 +32,4 @@ ENV OPENAI_SUMMARY_MODEL=gpt-4o-mini
 
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "fraud_detection.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "risk_profiler.main:app", "--host", "0.0.0.0", "--port", "8000"]

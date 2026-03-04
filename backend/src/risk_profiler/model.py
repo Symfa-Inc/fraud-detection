@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from fraud_detection.config import MODEL_DIR
+from risk_profiler.config import MODEL_DIR
 
 THRESHOLD = 0.65
 

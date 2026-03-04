@@ -2,7 +2,7 @@
 
 import os
 
-from fraud_detection.config import OPENAI_SUMMARY_MODEL
+from risk_profiler.config import OPENAI_SUMMARY_MODEL
 
 
 def generate_summary(

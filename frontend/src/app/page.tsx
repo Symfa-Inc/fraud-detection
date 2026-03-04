@@ -300,8 +300,8 @@ export default function Home() {
   return (
     <main className="page-shell">
       <header className="site-header">
-        <span className="header-tag">Insurance · Fraud Detection</span>
-        <h1>FraudLens</h1>
+        <span className="header-tag">Insurance · Risk Profiler</span>
+        <h1>RiskProfiler</h1>
         <p className="header-sub">
           Evaluate insurance claim fraud risk using machine learning and
           explainable AI. Review feature-level insights to understand what
