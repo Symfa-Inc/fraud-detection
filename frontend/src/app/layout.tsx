@@ -24,9 +24,6 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "RiskProfiler",
   description: "Insurance claim risk profiling and explainability",
-  icons: {
-    icon: "/icon.png",
-  },
 };
 
 export default function RootLayout({
