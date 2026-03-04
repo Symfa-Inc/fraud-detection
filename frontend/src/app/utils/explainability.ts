@@ -4,11 +4,14 @@ const normalizeFeatureName = (name: string) =>
 export function formatExplainabilityValue(name: string, value: string): string {
   const normalizedName = normalizeFeatureName(name);
 
-  const isHigherEducation =
+  const isBinary =
     normalizedName === "higheducationind" ||
-    normalizedName === "highereducation";
+    normalizedName === "highereducation" ||
+    normalizedName === "higheducation" ||
+    normalizedName === "witnesspresentind" ||
+    normalizedName === "witnesspresent";
 
-  if (isHigherEducation) {
+  if (isBinary) {
     if (value === "1") {
       return "Yes";
     }
