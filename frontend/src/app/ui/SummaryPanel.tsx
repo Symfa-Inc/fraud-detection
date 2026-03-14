@@ -115,7 +115,7 @@ export default function SummaryPanel({
           <p className="summary-text">{renderedSummary}</p>
 
           <div className="summary-columns">
-            <div className="summary-group">
+            <div className="summary-group summary-group--risk">
               <h3>Risk Drivers</h3>
               <ul>
                 {riskDriverLines.map((line, index) => (
@@ -124,7 +124,7 @@ export default function SummaryPanel({
               </ul>
             </div>
 
-            <div className="summary-group">
+            <div className="summary-group summary-group--protective">
               <h3>Protective Signals</h3>
               <ul>
                 {protectiveLines.map((line, index) => (
