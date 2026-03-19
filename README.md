@@ -36,6 +36,12 @@ RiskProfiler is a machine learning prototype for identifying potentially fraudul
 
 Claims analysts, fraud investigators, and operations teams who need to identify and prioritize potentially fraudulent claims for review.
 
+### Preview
+
+<p align="center">
+  <img src=".assets/risk-profiler.png" width="70%" alt="Risk Profiler – fraud prediction dashboard with SHAP feature contributions">
+</p>
+
 ## Tech Stack
 
 | Category | Technologies |
