@@ -22,13 +22,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        include:
-        - image_name: backend
-          context: ./backend
-          dockerfile: ./backend/Dockerfile
-        - image_name: frontend
-          context: ./frontend
-          dockerfile: ./frontend/Dockerfile
+        target: [backend, frontend]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -41,7 +35,7 @@ jobs:
       shell: bash
       run: |
         registry_host="${GCP_REGION}-docker.pkg.dev"
-        image_repository="${registry_host}/${GCP_PROJECT_ID}/${GAR_REPOSITORY}/${{ matrix.image_name }}"
+        image_repository="${registry_host}/${GCP_PROJECT_ID}/${GAR_REPOSITORY}/${{ matrix.target }}"
 
         {
           echo "registry_host=${registry_host}"
@@ -67,8 +61,8 @@ jobs:
     - name: Build and push image
       uses: docker/build-push-action@v6
       with:
-        context: ${{ matrix.context }}
-        file: ${{ matrix.dockerfile }}
+        context: ./${{ matrix.target }}
+        file: ./${{ matrix.target }}/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
