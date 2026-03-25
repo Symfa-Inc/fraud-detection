@@ -25,3 +25,21 @@ TEST_DATA_PATH = _resolve_path("TEST_DATA_PATH", "data/test.parquet")
 
 # OpenAI model for summary generation (e.g. gpt-4o-mini, gpt-4o)
 OPENAI_SUMMARY_MODEL = os.environ.get("OPENAI_SUMMARY_MODEL", "gpt-4o-mini")
+
+
+def _load_frontend_origins() -> list[str]:
+    raw = os.environ.get("FRONTEND_ORIGINS")
+    if raw:
+        return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+    default_origins = [
+        "http://localhost:3000",
+        "https://risk-profiler.ai.symfa.com",
+    ]
+    frontend_url = os.environ.get("FRONTEND_URL")
+    if frontend_url and frontend_url not in default_origins:
+        default_origins.append(frontend_url)
+    return default_origins
+
+
+FRONTEND_ORIGINS = _load_frontend_origins()
