@@ -14,7 +14,7 @@
 
 **Machine learning prototype for profiling risk in insurance claims.**
 
-🔗 **Live Demo**: [risk-profiler-demo.symfa.com](https://risk-profiler-demo-placeholder.vercel.app/)
+🔗 **Live Demo**: [risk-profiler.ai.symfa.com](https://risk-profiler.ai.symfa.com/)
 
 </div>
 
