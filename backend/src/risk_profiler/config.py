@@ -34,7 +34,7 @@ def _load_frontend_origins() -> list[str]:
 
     default_origins = [
         "http://localhost:3000",
-        "https://risk-profiler.ai.symfa.com",
+        "https://risk-profiler.symfa.ai",
     ]
     frontend_url = os.environ.get("FRONTEND_URL")
     if frontend_url and frontend_url not in default_origins:
