@@ -18,7 +18,7 @@
 
 💻 **GitHub**: [Symfa-Inc/risk-profiler](https://github.com/Symfa-Inc/risk-profiler)
 
-📘 **Confluence**: [Project Documentation](https://symfa.atlassian.net/wiki/x/BYD6LAE)
+📘 **Confluence**: [Project Description](https://symfa.atlassian.net/wiki/x/BYD6LAE)
 
 </div>
 
