@@ -503,12 +503,12 @@ packages:
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
     bundledDependencies:
-      - '@napi-rs/wasm-runtime'
-      - '@emnapi/core'
-      - '@emnapi/runtime'
-      - '@tybys/wasm-util'
-      - '@emnapi/wasi-threads'
-      - tslib
+    - '@napi-rs/wasm-runtime'
+    - '@emnapi/core'
+    - '@emnapi/runtime'
+    - '@tybys/wasm-util'
+    - '@emnapi/wasi-threads'
+    - tslib
 
   '@tailwindcss/oxide-win32-arm64-msvc@4.2.2':
     resolution: {integrity: sha512-qPmaQM4iKu5mxpsrWZMOZRgZv1tOZpUm+zdhhQP0VhJfyGGO3aUKdbh3gDZc/dPLQwW4eSqWGrrcWNBZWUWaXQ==}
@@ -2034,7 +2034,7 @@ snapshots:
       json5: 2.2.3
       semver: 6.3.1
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@babel/generator@7.29.1':
     dependencies:
@@ -2059,7 +2059,7 @@ snapshots:
       '@babel/traverse': 7.29.0
       '@babel/types': 7.29.0
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@babel/helper-module-transforms@7.28.6(@babel/core@7.29.0)':
     dependencies:
@@ -2068,7 +2068,7 @@ snapshots:
       '@babel/helper-validator-identifier': 7.28.5
       '@babel/traverse': 7.29.0
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@babel/helper-string-parser@7.27.1': {}
 
@@ -2101,7 +2101,7 @@ snapshots:
       '@babel/types': 7.29.0
       debug: 4.4.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@babel/types@7.29.0':
     dependencies:
@@ -2137,7 +2137,7 @@ snapshots:
       debug: 4.4.3
       minimatch: 3.1.5
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@eslint/config-helpers@0.4.2':
     dependencies:
@@ -2159,7 +2159,7 @@ snapshots:
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@eslint/js@9.39.4': {}
 
@@ -2446,8 +2446,8 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)':
-    dependencies:
+  ? '@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)'
+  : dependencies:
       '@eslint-community/regexpp': 4.12.2
       '@typescript-eslint/parser': 8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/scope-manager': 8.57.2
@@ -2460,7 +2460,7 @@ snapshots:
       ts-api-utils: 2.5.0(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
@@ -2472,7 +2472,7 @@ snapshots:
       eslint: 9.39.4(jiti@2.6.1)
       typescript: 5.9.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@typescript-eslint/project-service@8.57.2(typescript@5.9.3)':
     dependencies:
@@ -2481,7 +2481,7 @@ snapshots:
       debug: 4.4.3
       typescript: 5.9.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@typescript-eslint/scope-manager@8.57.2':
     dependencies:
@@ -2502,7 +2502,7 @@ snapshots:
       ts-api-utils: 2.5.0(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@typescript-eslint/types@8.57.2': {}
 
@@ -2519,7 +2519,7 @@ snapshots:
       ts-api-utils: 2.5.0(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@typescript-eslint/utils@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
@@ -2530,7 +2530,7 @@ snapshots:
       eslint: 9.39.4(jiti@2.6.1)
       typescript: 5.9.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   '@typescript-eslint/visitor-keys@8.57.2':
     dependencies:
@@ -2702,7 +2702,7 @@ snapshots:
       form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
-      - debug
+    - debug
 
   axobject-query@4.1.0: {}
 
@@ -2954,8 +2954,8 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-config-next@16.1.6(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3):
-    dependencies:
+  ? eslint-config-next@16.1.6(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+  : dependencies:
       '@next/eslint-plugin-next': 16.1.6
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.9
@@ -2969,10 +2969,10 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
-      - '@typescript-eslint/parser'
-      - eslint-import-resolver-webpack
-      - eslint-plugin-import-x
-      - supports-color
+    - '@typescript-eslint/parser'
+    - eslint-import-resolver-webpack
+    - eslint-plugin-import-x
+    - supports-color
 
   eslint-import-resolver-node@0.3.9:
     dependencies:
@@ -2980,7 +2980,7 @@ snapshots:
       is-core-module: 2.16.1
       resolve: 1.22.11
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
@@ -2995,10 +2995,10 @@ snapshots:
     optionalDependencies:
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1)):
-    dependencies:
+  ? eslint-module-utils@2.12.1(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
+  : dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
@@ -3006,10 +3006,10 @@ snapshots:
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1)):
-    dependencies:
+  ? eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
+  : dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
       array.prototype.findlastindex: 1.2.6
@@ -3033,9 +3033,9 @@ snapshots:
     optionalDependencies:
       '@typescript-eslint/parser': 8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
     transitivePeerDependencies:
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - supports-color
+    - eslint-import-resolver-typescript
+    - eslint-import-resolver-webpack
+    - supports-color
 
   eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
@@ -3065,7 +3065,7 @@ snapshots:
       zod: 4.3.6
       zod-validation-error: 4.0.2(zod@4.3.6)
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   eslint-plugin-react@7.37.5(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
@@ -3139,7 +3139,7 @@ snapshots:
     optionalDependencies:
       jiti: 2.6.1
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   espree@10.4.0:
     dependencies:
@@ -3616,8 +3616,8 @@ snapshots:
       '@next/swc-win32-x64-msvc': 16.1.7
       sharp: 0.34.5
     transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
+    - '@babel/core'
+    - babel-plugin-macros
 
   node-exports-info@1.6.0:
     dependencies:
@@ -4054,7 +4054,7 @@ snapshots:
       eslint: 9.39.4(jiti@2.6.1)
       typescript: 5.9.3
     transitivePeerDependencies:
-      - supports-color
+    - supports-color
 
   typescript@5.9.3: {}
 
