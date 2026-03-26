@@ -2,7 +2,7 @@
 
 <img src=".assets/logo.png" width="100" alt="RiskProfiler Logo">
 
-# 🕵️ Insurance Claim Risk Profiler
+# Insurance Claim Risk Profiler
 
 [![Python 3.13](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/downloads/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6.svg)](https://www.typescriptlang.org/)
@@ -14,7 +14,11 @@
 
 **Machine learning prototype for profiling risk in insurance claims.**
 
-🔗 **Live Demo**: [risk-profiler-demo.symfa.com](https://risk-profiler-demo-placeholder.vercel.app/)
+🔗 **Live Demo**: [risk-profiler.symfa.ai](https://risk-profiler.symfa.ai/)
+
+💻 **GitHub**: [Symfa-Inc/risk-profiler](https://github.com/Symfa-Inc/risk-profiler)
+
+📘 **Confluence**: [Project Description](https://symfa.atlassian.net/wiki/x/BYD6LAE)
 
 </div>
 

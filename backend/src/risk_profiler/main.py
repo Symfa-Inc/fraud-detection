@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
-from risk_profiler.config import FEATURE_IMPORTANCE_PATH
+from risk_profiler.config import FEATURE_IMPORTANCE_PATH, FRONTEND_ORIGINS
 from risk_profiler.explainer import compute_contributions
 from risk_profiler.model import load_predictor, predict_fraud, request_to_row
 from risk_profiler.summarizer import generate_summary
@@ -20,7 +20,7 @@ app = FastAPI(
 # CORS for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=FRONTEND_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
